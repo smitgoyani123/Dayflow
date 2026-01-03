@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User, Edit2, Plus, X, Check } from 'lucide-react';
+import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User, Edit2, Plus, X, Check, Flag, Users, CreditCard, Building, Hash } from 'lucide-react';
 
 const Profile = () => {
     const { id } = useParams();
@@ -23,6 +23,18 @@ const Profile = () => {
         jobLove: 'I love solving complex problems and building tools that make people\'s lives easier. The collaborative culture here is amazing.',
         hobbies: 'Hiking, Photography, Open Source Contributing, Sci-Fi Novels',
         address: '123 Tech Park, San Francisco, CA 94105',
+        dob: 'July 8, 1995',
+        nationality: 'American',
+        gender: 'Male',
+        maritalStatus: 'Single',
+        bankDetails: {
+            bankName: 'Silicon Valley Bank',
+            accountNo: '123456789012',
+            ifsc: 'SVB0001234',
+            pan: 'ABCDE1234F',
+            uan: '100000000000',
+            empCode: 'EMP001'
+        }
     });
 
     // Handlers for updates
@@ -259,25 +271,84 @@ const Profile = () => {
                 return (
                     <div className="tab-content">
                         <div className="private-section">
-                            <div className="section-card">
-                                <h3 className="section-title">Contact Information</h3>
-                                <div className="info-grid-private">
-                                    <InfoItem
-                                        label="Email Address"
-                                        value={employee.email}
-                                        icon={<Mail size={18} />}
-                                    />
-                                    <InfoItem
-                                        label="Phone Number"
-                                        value={employee.phone}
-                                        icon={<Phone size={18} />}
-                                    />
-                                    <InfoItem
-                                        label="Address"
-                                        value={employee.address}
-                                        icon={<MapPin size={18} />}
-                                        fullWidth={true}
-                                    />
+                            <div className="private-info-grid-container">
+                                {/* Left Column: Personal Info */}
+                                <div className="section-card">
+                                    <h3 className="section-title">Personal Information</h3>
+                                    <div className="info-grid-private-col">
+                                        <InfoItem
+                                            label="Date of Birth"
+                                            value={employee.dob}
+                                            icon={<Calendar size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="Residing Address"
+                                            value={employee.address}
+                                            icon={<MapPin size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="Nationality"
+                                            value={employee.nationality}
+                                            icon={<Flag size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="Personal Email"
+                                            value={employee.email}
+                                            icon={<Mail size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="Gender"
+                                            value={employee.gender}
+                                            icon={<User size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="Marital Status"
+                                            value={employee.maritalStatus}
+                                            icon={<Users size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="Date of Joining"
+                                            value={employee.joinDate}
+                                            icon={<Calendar size={18} />}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Bank Details */}
+                                <div className="section-card">
+                                    <h3 className="section-title">Bank Details</h3>
+                                    <div className="info-grid-private-col">
+                                        <InfoItem
+                                            label="Account Number"
+                                            value={employee.bankDetails.accountNo}
+                                            icon={<CreditCard size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="Bank Name"
+                                            value={employee.bankDetails.bankName}
+                                            icon={<Building size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="IFSC Code"
+                                            value={employee.bankDetails.ifsc}
+                                            icon={<Hash size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="PAN No"
+                                            value={employee.bankDetails.pan}
+                                            icon={<FileText size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="UAN NO"
+                                            value={employee.bankDetails.uan}
+                                            icon={<FileText size={18} />}
+                                        />
+                                        <InfoItem
+                                            label="Emp Code"
+                                            value={employee.bankDetails.empCode}
+                                            icon={<Briefcase size={18} />}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -340,6 +411,10 @@ const Profile = () => {
                             <span className="info-pill">
                                 <MapPin size={14} />
                                 <span className="text-sm">San Francisco</span>
+                            </span>
+                            <span className="info-pill">
+                                <Phone size={14} />
+                                <span className="text-sm">{employee.phone}</span>
                             </span>
                         </div>
                     </div>
@@ -709,15 +784,25 @@ const Profile = () => {
                 }
 
                 /* Info Grid */
+                .private-info-grid-container {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 24px;
+                }
+                @media (max-width: 900px) {
+                    .private-info-grid-container {
+                        grid-template-columns: 1fr;
+                    }
+                }
                 .info-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
                     gap: 24px;
                 }
-                .info-grid-private {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                    gap: 24px;
+                .info-grid-private-col {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
                 }
                 .info-item {
                     display: flex;
