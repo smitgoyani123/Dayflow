@@ -21,8 +21,8 @@ const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
         <div className="nav-left">
           {/* Logo */}
           <div className="nav-logo">
-            <div className="logo-icon">D</div>
-            <span className="logo-text">Dayflow</span>
+            <img src="/dayflow-logo.png" alt="DayFlow Logo" className="logo-img" />
+            <span className="logo-text">DayFlow</span>
           </div>
 
           <div className="nav-divider"></div>
@@ -88,11 +88,8 @@ const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
         .nav-left { display: flex; align-items: center; height: 100%; }
 
         .nav-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .logo-icon {
-          width: 28px; height: 28px; background: var(--color-primary); color: white;
-          border-radius: 6px; display: flex; align-items: center; justify-content: center;
-          font-weight: 700; font-size: 1rem;
-          box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); /* Slight prominence */
+        .logo-img {
+          width: 32px; height: 32px; object-fit: contain;
         }
         .logo-text { font-weight: 600; font-size: 1.05rem; color: #475569; letter-spacing: -0.01em; } /* More subtle text */
 
