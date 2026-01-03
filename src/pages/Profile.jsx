@@ -118,21 +118,21 @@ const Profile = () => {
 
                             <div className="section-card">
                                 <h3 className="section-title">Professional Information</h3>
-                                <div className="info-grid">
-                                    <InfoItem
+                                <div className="info-grid-private-col">
+                                    <DataFieldCard
                                         label="Department"
                                         value={employee.dept}
-                                        icon={<Briefcase size={18} />}
+                                        icon={<Briefcase size={20} strokeWidth={1.5} />}
                                     />
-                                    <InfoItem
+                                    <DataFieldCard
                                         label="Manager"
                                         value={employee.reportsTo}
-                                        icon={<User size={18} />}
+                                        icon={<User size={20} strokeWidth={1.5} />}
                                     />
-                                    <InfoItem
+                                    <DataFieldCard
                                         label="Joined Date"
                                         value={employee.joinDate}
-                                        icon={<Calendar size={18} />}
+                                        icon={<Calendar size={20} strokeWidth={1.5} />}
                                     />
                                 </div>
                             </div>
