@@ -23,26 +23,26 @@ const Login = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card card">
+      <div className="auth-card">
         <div className="auth-header">
-          <div className="logo-placeholder">
-            <div className="logo-icon">D</div>
-            <span className="logo-text">Dayflow</span>
+          <div className="logo-wrapper">
+            <img src="/dayflow-logo.png" alt="Dayflow Logo" className="logo-img" />
+            <span className="logo-text">DayFlow</span>
           </div>
-          <h1 className="text-xl">Sign In</h1>
-          <p className="text-muted text-sm">Welcome back to your workspace</p>
+          <h1 className="auth-title">Welcome Back</h1>
+          <p className="auth-subtitle">Sign in to your workspace</p>
         </div>
 
-        {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
+        {error && <div className="error-banner">{error}</div>}
 
-        <form className="auth-form flex flex-col gap-4" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="text-sm text-secondary">Login ID or Email</label>
-            <div className="input-wrapper">
-              <User size={18} className="input-icon" />
+            <label className="input-label">Email Address</label>
+            <div className="input-has-icon">
+              <User size={20} className="field-icon" />
               <input
                 type="text"
-                placeholder="Enter your ID or Email"
+                placeholder="name@company.com"
                 className="input-field"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -51,9 +51,9 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label className="text-sm text-secondary">Password</label>
-            <div className="input-wrapper">
-              <Lock size={18} className="input-icon" />
+            <label className="input-label">Password</label>
+            <div className="input-has-icon">
+              <Lock size={20} className="field-icon" />
               <input
                 type="password"
                 placeholder="Enter your password"
@@ -64,14 +64,14 @@ const Login = () => {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>
+          <button type="submit" className="btn-submit">
             Sign In
           </button>
         </form>
 
-        <div className="auth-footer text-center text-sm">
-          <p className="text-muted">
-            Don't have an account? <a href="/signup" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>Sign Up</a>
+        <div className="auth-footer">
+          <p>
+            Don't have an account? <a href="/signup" className="link-text">Create an account</a>
           </p>
         </div>
       </div>
@@ -79,76 +79,123 @@ const Login = () => {
       <style>{`
         .auth-container {
           min-height: 100vh;
+          width: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: var(--color-bg);
-          padding: 16px;
+          background: url('/auth-bg.jpg') no-repeat center center fixed;
+          background-size: cover;
+          padding: 20px;
         }
+
         .auth-card {
           width: 100%;
-          max-width: 400px;
+          max-width: 420px;
+          background: white;
+          border-radius: 24px;
           padding: 40px;
+          box-shadow: 
+            0 4px 6px -1px rgba(0, 0, 0, 0.02),
+            0 12px 32px -4px rgba(0, 0, 0, 0.08); /* Premium deep shadow */
+          border: 1px solid rgba(226, 232, 240, 0.8);
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 32px;
+          animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
         .auth-header {
           text-align: center;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
+          display: flex; flex-direction: column; align-items: center;
         }
-        .logo-placeholder {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 24px;
+        .logo-wrapper {
+          display: flex; align-items: center; gap: 8px; /* Slightly tighter gap */
+          margin-bottom: 20px; /* Reduced from 24px */
         }
-        .logo-icon {
-          width: 32px;
-          height: 32px;
-          background: var(--color-primary);
-          color: white;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
+        .logo-img {
+          width: 36px; height: 36px; object-fit: contain; /* Slightly smaller logo */
         }
         .logo-text {
-          font-weight: 700;
-          font-size: 1.25rem;
-          color: var(--color-text-main);
+          font-family: 'Outfit', sans-serif;
+          font-size: 1.4rem; font-weight: 600; color: #0f172a; /* Slightly lighter weight */
+          letter-spacing: -0.02em;
         }
-        .input-wrapper {
-          position: relative;
-          display: flex;
-          align-items: center;
-          margin-top: 4px;
+        .auth-title {
+          font-size: 1.6rem; font-weight: 700; color: #0f172a;
+          margin: 0 0 2px 0; letter-spacing: -0.03em;
+          line-height: 1.2;
         }
-        .input-icon {
-          position: absolute;
-          left: 12px;
-          color: var(--color-text-muted);
+        .auth-subtitle {
+          font-size: 0.95rem; color: #64748b; margin: 0;
+          font-weight: 400; letter-spacing: -0.01em;
         }
+
+        /* Form */
+        .auth-form { display: flex; flex-direction: column; gap: 20px; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-label {
+          font-size: 0.9rem; font-weight: 500; color: #334155;
+        }
+        
+        .input-has-icon { position: relative; }
+        .field-icon {
+          position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+          color: #94a3b8; transition: color 0.2s;
+        }
+        
         .input-field {
           width: 100%;
-          padding: 10px 12px 10px 40px;
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-md);
-          font-size: 0.95rem;
+          padding: 12px 16px 12px 44px; /* Space for icon */
+          font-size: 1rem; color: #0f172a;
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          border-radius: 12px;
           outline: none;
-          transition: border-color 0.2s;
+          transition: all 0.2s ease;
         }
         .input-field:focus {
           border-color: var(--color-primary);
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
-        .auth-footer {
-          margin-top: 16px;
+        .input-field:focus + .field-icon { color: var(--color-primary); } /* Select sibling icon if possible, but structure prevents css selection easily without reordering. React handles focus state usually, but pure css pseudo-class works better on input. */
+        .input-field:focus ~ .field-icon { color: var(--color-primary); } /* Correct sibling selector if icon is AFTER input */
+        /* Since icon is BEFORE, we can't select it with sibling. We'll stick to simple css or use focus-within on wrapper */
+        .input-has-icon:focus-within .field-icon { color: var(--color-primary); }
+
+        .btn-submit {
+          margin-top: 8px;
+          padding: 14px;
+          background: linear-gradient(135deg, var(--color-primary) 0%, #1d4ed8 100%);
+          color: white; border: none; border-radius: 12px;
+          font-size: 1rem; font-weight: 600; cursor: pointer;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+          transition: transform 0.1s, box-shadow 0.2s;
         }
-        .text-center { text-align: center; }
+        .btn-submit:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+        }
+        .btn-submit:active { transform: translateY(0); }
+
+        .error-banner {
+          background: #fef2f2; border: 1px solid #fee2e2; color: #dc2626;
+          padding: 12px; border-radius: 8px; font-size: 0.9rem; text-align: center;
+        }
+
+        /* Footer */
+        .auth-footer { text-align: center; font-size: 0.95rem; color: #64748b; }
+        .link-text {
+          color: var(--color-primary); font-weight: 600; text-decoration: none;
+        }
+        .link-text:hover { text-decoration: underline; }
+
       `}</style>
     </div>
   );
