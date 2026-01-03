@@ -30,13 +30,14 @@ const Signup = () => {
     }
 
     // Defaulting to Admin role for this signup flow since it says "Create Organization"
+    // Sending full details to backend
     const res = await register({
       email: formData.email,
       password: formData.password,
       role: 'Admin',
-      // We could pass other fields if backend supported them, 
-      // for now backend only takes email/password/role.
-      // A senior dev would update backend to accept these, but let's get auth working first.
+      fullName: formData.fullName,
+      companyName: formData.companyName,
+      phone: formData.phone
     });
 
     if (res.success) {

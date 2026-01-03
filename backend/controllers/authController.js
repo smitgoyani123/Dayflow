@@ -1,3 +1,4 @@
+import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
 import Employee from '../models/Employee.js';
@@ -5,7 +6,7 @@ import Employee from '../models/Employee.js';
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
 // @access  Public
-const loginUser = async (req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -29,13 +30,13 @@ const loginUser = async (req, res) => {
         res.status(401);
         throw new Error('Invalid email or password');
     }
-};
+});
 
-// @desc    Register a new user (Admin/HR only usually, but open for now as per req "Sign Up")
+// @desc    Register a new user (Admin/HR only usually, but open for now as per req "Create Organization")
 // @route   POST /api/auth/register
-// @access  Public (for now)
-const registerUser = async (req, res) => {
-    const { email, password, role } = req.body;
+// @access  Public
+const registerUser = asyncHandler(async (req, res) => {
+    const { email, password, role, fullName, companyName, phone } = req.body;
 
     const userExists = await User.findOne({ email });
 
@@ -51,20 +52,28 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
-        // Auto-create a basic Employee profile so the user has data
-        // For a real app, we might ask for these details in a multi-step form.
+        // Parse Name
+        let firstName = 'New';
+        let lastName = 'User';
+        if (fullName) {
+            const parts = fullName.split(' ');
+            firstName = parts[0];
+            lastName = parts.length > 1 ? parts.slice(1).join(' ') : '';
+        }
+
+        // Create detailed Employee profile linked to User
         const newEmployee = await Employee.create({
             userId: user._id,
             email: user.email,
-            firstName: 'New',
-            lastName: role === 'Admin' ? 'Admin' : 'Employee',
+            firstName: firstName,
+            lastName: lastName || (role === 'Admin' ? 'Admin' : 'Employee'),
             designation: role === 'Admin' ? 'Administrator' : 'Staff',
-            department: 'General',
+            department: companyName || 'General', // Using Company Name as Department/Org identifier for now
             dateOfJoining: new Date(),
-            salary: 0, // Default
+            salary: 0,
             address: 'Please update address',
-            phoneNumber: '0000000000',
-            profilePicture: `https://ui-avatars.com/api/?name=${role || 'User'}&background=random`
+            phoneNumber: phone || '0000000000',
+            profilePicture: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=random`
         });
 
         user.employeeId = newEmployee._id;
@@ -81,6 +90,6 @@ const registerUser = async (req, res) => {
         res.status(400);
         throw new Error('Invalid user data');
     }
-};
+});
 
 export { loginUser, registerUser };
