@@ -1,39 +1,121 @@
-import React, { useState } from 'react';
-import { Plus, Check, X, FileText, Filter, Users, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Check, X, Users, User } from 'lucide-react';
 import Modal from '../components/Modal';
+import { useAuth } from '../context/AuthContext';
 
 const TimeOff = () => {
-    // Temporary role state for demo
-    const [userRole, setUserRole] = useState('employee'); // 'admin' | 'employee'
+    const { user } = useAuth();
+    const [userRole, setUserRole] = useState(user?.role === 'Admin' ? 'admin' : 'employee'); // Default based on actual role
 
     // Shared State
     const [isModalOpen, setModalOpen] = useState(false);
     const [filter, setFilter] = useState('All');
+    const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Employee Specific Form State
+    // Employee Specific State
+    const [balance, setBalance] = useState({
+        'Paid Time Off (PTO)': 0,
+        'Sick Leave': 0,
+        'Casual Leave': 0
+    });
+
+    // Form State
     const [isHalfDay, setIsHalfDay] = useState(false);
     const [formData, setFormData] = useState({
         type: 'Paid Time Off (PTO)',
         startDate: '',
         endDate: '',
         reason: '',
-        attachment: null
     });
 
-    // Mock Data
-    const [requests, setRequests] = useState([
-        { id: 1, employeeName: 'Alex Johnson', type: 'Sick Leave', start: '2024-03-10', end: '2024-03-12', days: 3, status: 'Approved' },
-        { id: 2, employeeName: 'Maria Garcia', type: 'Casual Leave', start: '2024-02-15', end: '2024-02-16', days: 2, status: 'Rejected' },
-        { id: 3, employeeName: 'Alex Johnson', type: 'Paid Time Off', start: '2024-01-01', end: '2024-01-05', days: 5, status: 'Approved' },
-        { id: 4, employeeName: 'John Doe', type: 'Sick Leave', start: '2024-04-01', end: '2024-04-01', days: 1, status: 'Pending' },
-        { id: 5, employeeName: 'Alex Johnson', type: 'Unpaid Leave', start: '2024-04-10', end: '2024-04-12', days: 3, status: 'Pending' },
-    ]);
+    const token = localStorage.getItem('token');
+
+    // Fetch Data
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+
+            // 1. Fetch Requests
+            const endpoint = userRole === 'admin' ? '/api/leaves' : '/api/leaves/my';
+            const reqRes = await fetch(endpoint, { headers });
+            if (!reqRes.ok) throw new Error('Failed to fetch leave requests');
+            const reqData = await reqRes.json();
+
+            // Transform data specific for UI if needed, but backend match seems close
+            // Backend returns: generic leave object. 
+            // We need 'employeeName' for Admin view. 
+            // Backend populate('employeeId') gives firstName, lastName.
+            const formattedRequests = reqData.map(r => ({
+                id: r._id,
+                employeeName: r.employeeId ? `${r.employeeId.firstName} ${r.employeeId.lastName}` : 'Unknown',
+                type: r.leaveType,
+                start: new Date(r.startDate).toISOString().split('T')[0],
+                end: new Date(r.endDate).toISOString().split('T')[0],
+                days: calculateDays(r.startDate, r.endDate), // Recalculate or store? calculate is fine
+                status: r.status
+            }));
+            setRequests(formattedRequests);
+
+            // 2. Fetch Balance (If Employee)
+            if (userRole === 'employee') {
+                // We might need to fetch fresh profile to get balance
+                const profileRes = await fetch('/api/employees/profile', { headers });
+                if (profileRes.ok) {
+                    const profileData = await profileRes.json();
+                    if (profileData.leaveBalance) {
+                        setBalance(profileData.leaveBalance);
+                    }
+                }
+            }
+
+        } catch (err) {
+            console.error(err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [userRole, token]); // Refetch when role toggles (if simulating) or token changes
+
+    // Update role state if user changes (real login)
+    useEffect(() => {
+        if (user) {
+            setUserRole(user.role === 'Admin' ? 'admin' : 'employee');
+        }
+    }, [user]);
+
 
     // Actions
-    const handleStatusUpdate = (id, newStatus) => {
-        setRequests(requests.map(req =>
-            req.id === id ? { ...req, status: newStatus } : req
-        ));
+    const handleStatusUpdate = async (id, newStatus) => {
+        try {
+            const res = await fetch(`/api/leaves/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || 'Update failed');
+            }
+
+            // Optimistic Update or Refetch
+            fetchData();
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     const handleInputChange = (e) => {
@@ -50,22 +132,37 @@ const TimeOff = () => {
         return diffDays;
     };
 
-    const handleRequestSubmit = (e) => {
+    const handleRequestSubmit = async (e) => {
         e.preventDefault();
-        let days = isHalfDay ? 0.5 : calculateDays(formData.startDate, formData.endDate);
-        const newRequest = {
-            id: Date.now(),
-            employeeName: 'Alex Johnson',
-            type: formData.type,
-            start: formData.startDate,
-            end: formData.endDate,
-            days: days,
-            status: 'Pending'
-        };
-        setRequests([newRequest, ...requests]);
-        setModalOpen(false);
-        setFormData({ type: 'Paid Time Off (PTO)', startDate: '', endDate: '', reason: '', attachment: null });
-        setIsHalfDay(false);
+        try {
+            const body = {
+                leaveType: formData.type,
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                reason: formData.reason,
+            };
+
+            const res = await fetch('/api/leaves', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || 'Application failed');
+            }
+
+            setModalOpen(false);
+            setFormData({ type: 'Paid Time Off (PTO)', startDate: '', endDate: '', reason: '' });
+            setIsHalfDay(false);
+            fetchData(); // Refresh list and potentially balance (though balance updates on approval usually)
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     return (
@@ -81,21 +178,25 @@ const TimeOff = () => {
                 </div>
 
                 <div className="header-actions">
-                    {/* Role Switcher */}
-                    <div className="role-segments">
-                        <button
-                            className={`segment-btn ${userRole === 'employee' ? 'active' : ''}`}
-                            onClick={() => setUserRole('employee')}
-                        >
-                            <User size={16} /> Employee
-                        </button>
-                        <button
-                            className={`segment-btn ${userRole === 'admin' ? 'active' : ''}`}
-                            onClick={() => setUserRole('admin')}
-                        >
-                            <Users size={16} /> Admin
-                        </button>
-                    </div>
+                    {/* Role Simulator for Debugging - remove in strict prod if needed, but useful for now if Admin wants to see their own leaves? 
+                        Actually, let's restrict standard users from switching.
+                    */}
+                    {user?.role === 'Admin' && (
+                        <div className="role-segments">
+                            <button
+                                className={`segment-btn ${userRole === 'employee' ? 'active' : ''}`}
+                                onClick={() => setUserRole('employee')}
+                            >
+                                <User size={16} /> My Leaves
+                            </button>
+                            <button
+                                className={`segment-btn ${userRole === 'admin' ? 'active' : ''}`}
+                                onClick={() => setUserRole('admin')}
+                            >
+                                <Users size={16} /> All Requests
+                            </button>
+                        </div>
+                    )}
 
                     {userRole === 'employee' && (
                         <button className="btn-primary" onClick={() => setModalOpen(true)}>
@@ -107,9 +208,12 @@ const TimeOff = () => {
 
             {/* 2. Main Content Area */}
             <div className="page-content">
-                {userRole === 'employee' ? (
+                {loading ? (
+                    <div>Loading...</div>
+                ) : userRole === 'employee' ? (
                     <EmployeeView
-                        requests={requests.filter(r => r.employeeName === 'Alex Johnson')}
+                        requests={requests}
+                        balance={balance}
                         filter={filter}
                         setFilter={setFilter}
                     />
@@ -150,7 +254,7 @@ const TimeOff = () => {
 
                     <label className="checkbox-row">
                         <input type="checkbox" checked={isHalfDay} onChange={e => setIsHalfDay(e.target.checked)} />
-                        <span>Requesting Half Day</span>
+                        <span>Requesting Half Day (Not fully implemented yet)</span>
                     </label>
 
                     <div className="summary-box">
@@ -317,14 +421,20 @@ const TimeOff = () => {
 
 // --- Sub-Components ---
 
-const EmployeeView = ({ requests, filter, setFilter }) => {
+const EmployeeView = ({ requests, balance, filter, setFilter }) => {
     const filtered = filter === 'All' ? requests : requests.filter(r => r.status === filter);
+
+    // Balance defaults if new field missing
+    const pto = balance['Paid Time Off (PTO)'] ?? 15;
+    const sick = balance['Sick Leave'] ?? 10;
+    const casual = balance['Casual Leave'] ?? 5;
+
     return (
         <>
             <div className="balance-grid">
-                <BalanceCard label="Paid Time Off (PTO)" used={12} total={20} color="var(--color-primary)" />
-                <BalanceCard label="Sick Leave" used={5} total={7} color="#f97316" />
-                <BalanceCard label="Casual Leave" used={2} total={5} color="#10b981" />
+                <BalanceCard label="Paid Time Off (PTO)" left={pto} total={15} color="var(--color-primary)" />
+                <BalanceCard label="Sick Leave" left={sick} total={10} color="#f97316" />
+                <BalanceCard label="Casual Leave" left={casual} total={5} color="#10b981" />
             </div>
 
             <div className="table-card">
@@ -420,8 +530,15 @@ const AdminView = ({ requests, handleStatusUpdate, filter, setFilter }) => {
     );
 };
 
-const BalanceCard = ({ label, used, total, color }) => {
+const BalanceCard = ({ label, left, total, color }) => {
+    // Left is passed directly now
+    const used = total - left;
     const percentage = Math.round((used / total) * 100);
+
+    // Safety for division by zero if total is changed
+    const safeTotal = total || 1;
+    const safePercentage = Math.min(Math.max(percentage, 0), 100);
+
     return (
         <div style={{
             background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0',
@@ -430,19 +547,19 @@ const BalanceCard = ({ label, used, total, color }) => {
             <div>
                 <h4 style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '8px' }}>{label}</h4>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                    <span style={{ fontSize: '2rem', fontWeight: '700', color: '#0f172a', lineHeight: 1 }}>{total - used}</span>
-                    <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>left</span>
+                    <span style={{ fontSize: '2rem', fontWeight: '700', color: '#0f172a', lineHeight: 1 }}>{left}</span>
+                    <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>days left</span>
                 </div>
                 <div style={{ marginTop: '8px', fontSize: '0.8rem', color: '#64748b', background: '#f8fafc', padding: '2px 8px', borderRadius: '4px', display: 'inline-block' }}>
-                    Used: <strong>{used}</strong>/{total}
+                    Used: <strong>{used}</strong>/{safeTotal}
                 </div>
             </div>
             <div style={{
-                width: '64px', height: '64px', borderRadius: '50%', background: `conic-gradient(${color} ${percentage}%, #f1f5f9 0)`,
+                width: '64px', height: '64px', borderRadius: '50%', background: `conic-gradient(${color} ${safePercentage}%, #f1f5f9 0)`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
                 <div style={{ width: '52px', height: '52px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '700', color: '#334155' }}>
-                    {percentage}%
+                    {safePercentage}%
                 </div>
             </div>
         </div>

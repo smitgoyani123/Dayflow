@@ -45,6 +45,16 @@ const employeeSchema = mongoose.Schema({
         type: String, // URL or base64 string
         default: '',
     },
+    leaveBalance: {
+        type: Map,
+        of: Number,
+        default: {
+            'Paid Time Off (PTO)': 15,
+            'Sick Leave': 10,
+            'Casual Leave': 5,
+            'Unpaid Leave': 0
+        }
+    },
 }, {
     timestamps: true,
 });
