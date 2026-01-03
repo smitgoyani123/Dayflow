@@ -1,72 +1,97 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { Calendar, ChevronDown } from 'lucide-react';
 
 const Attendance = () => {
-    // Mock Data based on the wireframe
+    // Mock Data - Enhanced with Status
     const attendanceData = [
-        { date: '28/10/2025', checkIn: '10:00', checkOut: '19:00', workHours: '09:00', extraHours: '01:00' },
-        { date: '29/10/2025', checkIn: '10:00', checkOut: '19:00', workHours: '09:00', extraHours: '01:00' },
-        { date: '30/10/2025', checkIn: '10:00', checkOut: '19:00', workHours: '09:00', extraHours: '01:00' },
-        { date: '31/10/2025', checkIn: '09:45', checkOut: '18:45', workHours: '09:00', extraHours: '01:00' },
-        { date: '01/11/2025', checkIn: '10:15', checkOut: '19:15', workHours: '09:00', extraHours: '01:00' },
+        { date: '2024-03-01', status: 'Absent', checkIn: '-', checkOut: '-', workHours: '-' },
+        { date: '2024-03-02', status: 'Present', checkIn: '09:00 AM', checkOut: '06:00 PM', workHours: '9h 00m' },
+        { date: '2024-03-03', status: 'Present', checkIn: '09:00 AM', checkOut: '06:00 PM', workHours: '9h 00m' },
+        { date: '2024-03-04', status: 'Present', checkIn: '09:00 AM', checkOut: '06:00 PM', workHours: '9h 00m' },
+        { date: '2024-03-05', status: 'Present', checkIn: '09:00 AM', checkOut: '06:00 PM', workHours: '9h 00m' },
+        { date: '2024-03-06', status: 'Late', checkIn: '09:30 AM', checkOut: '06:30 PM', workHours: '9h 00m' },
     ];
 
-    const [currentMonth, setCurrentMonth] = useState('Oct');
+    const [isAdminView, setIsAdminView] = useState(false);
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Present': return 'bg-green-100 text-green-700';
+            case 'Absent': return 'bg-red-100 text-red-700';
+            case 'Late': return 'bg-orange-100 text-orange-700';
+            default: return 'bg-gray-100 text-gray-700';
+        }
+    };
 
     return (
         <div className="attendance-page">
-            <h1 className="page-title">Attendance</h1>
 
-            {/* Toolbar Section */}
-            <div className="toolbar">
-                <div className="nav-controls">
-                    <button className="icon-btn"><ChevronLeft size={20} /></button>
-                    <button className="icon-btn"><ChevronRight size={20} /></button>
+            {/* Header Section */}
+            <div className="page-header">
+                <div className="header-left">
+                    <h1 className="page-title">Attendance Log</h1>
+                    <p className="page-subtitle">View attendance history and work hours</p>
                 </div>
-                
-                <div className="month-selector">
-                    <span>{currentMonth}</span>
-                    <ChevronDown size={14} />
-                </div>
-
-                <div className="stat-card">
-                    <span className="stat-label">Count of days present</span>
-                    {/* Value placeholder if needed, purely visual as per sketch text */}
-                </div>
-
-                <div className="stat-card">
-                    <span className="stat-label">Leaves count</span>
-                </div>
-
-                <div className="stat-card">
-                    <span className="stat-label">Total working days</span>
+                <div className="header-right">
+                    <label className="admin-toggle">
+                        <input
+                            type="checkbox"
+                            checked={isAdminView}
+                            onChange={() => setIsAdminView(!isAdminView)}
+                        />
+                        <span>Admin View</span>
+                    </label>
+                    <button className="date-picker-btn">
+                        <Calendar size={18} />
+                        <span>March 2024</span>
+                    </button>
                 </div>
             </div>
 
-            <div className="date-header">
-                22,October 2025
+            {/* Stats Cards Row */}
+            <div className="stats-grid">
+                <div className="stat-card">
+                    <div className="stat-label">Present</div>
+                    <div className="stat-value">12</div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-label">Absent</div>
+                    <div className="stat-value">2</div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-label">Late Arrival</div>
+                    <div className="stat-value">1</div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-label">Total Hours</div>
+                    <div className="stat-value">104h</div>
+                </div>
             </div>
 
-            {/* Table Section */}
+            {/* Attendance Table */}
             <div className="table-container">
                 <table className="attendance-table">
                     <thead>
                         <tr>
                             <th>Date</th>
+                            <th>Status</th>
                             <th>Check In</th>
                             <th>Check Out</th>
                             <th>Work Hours</th>
-                            <th>Extra hours</th>
                         </tr>
                     </thead>
                     <tbody>
                         {attendanceData.map((row, index) => (
                             <tr key={index}>
-                                <td>{row.date}</td>
+                                <td className="font-medium">{row.date}</td>
+                                <td>
+                                    <span className={`status-pill ${getStatusColor(row.status)}`}>
+                                        {row.status}
+                                    </span>
+                                </td>
                                 <td>{row.checkIn}</td>
                                 <td>{row.checkOut}</td>
                                 <td>{row.workHours}</td>
-                                <td>{row.extraHours}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -75,128 +100,79 @@ const Attendance = () => {
 
             <style>{`
                 .attendance-page {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 20px;
-                    padding: 0 10px;
+                    width: 100%;
+                    display: flex; flex-direction: column; gap: 32px;
                 }
 
+                /* Header */
+                .page-header {
+                    display: flex; justify-content: space-between; align-items: flex-start;
+                }
                 .page-title {
-                    font-size: 1.5rem;
-                    font-weight: 600;
-                    color: var(--color-text-main);
-                    border: 1px solid var(--color-text-main);
-                    padding: 10px 15px;
-                    border-radius: 4px; /* Slight radius for "sketchy" feel or just clean box */
-                    background: white;
-                    width: 100%;
+                    font-size: 1.75rem; font-weight: 700; color: #0f172a;
+                    margin-bottom: 4px;
                 }
+                .page-subtitle { color: #64748b; font-size: 0.95rem; }
 
-                .toolbar {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    flex-wrap: wrap;
-                }
-
-                .nav-controls {
-                    display: flex;
-                    gap: 8px;
-                }
-
-                .icon-btn {
-                    width: 40px;
-                    height: 40px;
-                    border: 1px solid var(--color-text-main);
-                    background: white;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    color: var(--color-text-main);
-                }
-
-                .month-selector {
-                    height: 40px;
-                    min-width: 100px;
-                    border: 1px solid var(--color-text-main);
-                    background: white;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    border-radius: 4px;
-                    padding: 0 12px;
-                    font-weight: 600;
-                    cursor: pointer;
-                }
-
-                .stat-card {
-                    height: 40px;
-                    padding: 0 16px;
-                    border: 1px solid var(--color-text-secondary); /* Lighter border for these maybe? Sketch shows same weight */
-                    border: 1px solid var(--color-text-muted); 
-                    background: #f8fafc;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 2px;
-                    font-size: 0.9rem;
-                    color: var(--color-text-main);
-                    white-space: nowrap;
-                }
-
-                .date-header {
-                    margin-top: 10px;
-                    font-size: 1.1rem;
-                    font-weight: 500;
-                    color: var(--color-text-main);
-                }
-
-                .table-container {
-                    width: 100%;
-                    border-top: 2px solid var(--color-text-main); /* Strong line as per sketch */
-                }
-
-                .attendance-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-
-                .attendance-table th {
-                    text-align: left;
-                    padding: 12px 0;
-                    border-bottom: 2px solid var(--color-text-main); /* Header separator */
-                    font-weight: 600;
-                    color: var(--color-text-main);
-                }
+                .header-right { display: flex; align-items: center; gap: 24px; }
                 
-                /* Column widths based on visual weight */
-                .attendance-table th:nth-child(1) { width: 25%; }
-                .attendance-table th:nth-child(2) { width: 20%; }
-                .attendance-table th:nth-child(3) { width: 20%; }
-                .attendance-table th:nth-child(4) { width: 20%; }
-                .attendance-table th:nth-child(5) { width: 15%; text-align: right; }
-                .attendance-table td:nth-child(5) { text-align: right; }
+                .admin-toggle {
+                    display: flex; align-items: center; gap: 8px; 
+                    font-size: 0.9rem; color: #64748b; cursor: pointer;
+                }
+                .date-picker-btn {
+                    display: flex; align-items: center; gap: 8px;
+                    padding: 10px 16px;
+                    background: white; border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    font-weight: 600; color: #1e293b;
+                    cursor: pointer; transition: all 0.2s;
+                }
+                .date-picker-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
 
+                /* Stats Grid */
+                .stats-grid {
+                    display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+                }
+                .stat-card {
+                    background: white; border: 1px solid #e2e8f0;
+                    border-radius: 16px; padding: 24px;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                }
+                .stat-label { color: #64748b; font-size: 0.9rem; margin-bottom: 8px; }
+                .stat-value { font-size: 2rem; font-weight: 700; color: #0f172a; }
+
+                /* Table */
+                .table-container {
+                    background: white; border: 1px solid #e2e8f0;
+                    border-radius: 16px; overflow: hidden;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                }
+                .attendance-table { width: 100%; border-collapse: collapse; }
+                
+                .attendance-table th {
+                    text-align: left; padding: 16px 24px;
+                    background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+                    color: #64748b; font-weight: 600; font-size: 0.9rem;
+                }
                 .attendance-table td {
-                    padding: 16px 0;
-                    border-bottom: 1px solid var(--color-border);
-                    color: var(--color-text-main);
-                    font-size: 1rem;
+                    padding: 20px 24px;
+                    border-bottom: 1px solid #f1f5f9;
+                    color: #1e293b; font-size: 0.95rem;
                 }
+                .attendance-table tr:last-child td { border-bottom: none; }
+                
+                .font-medium { font-weight: 500; }
 
-                /* Vertical lines like in the sketch (optional, but requested 'like this') */
-                .attendance-table th:not(:last-child),
-                .attendance-table td:not(:last-child) {
-                    border-right: 1px solid var(--color-text-main);
-                    padding-right: 12px;
+                /* Status Pills */
+                .status-pill {
+                    display: inline-block; padding: 6px 16px;
+                    border-radius: 100px; font-size: 0.85rem; font-weight: 600;
                 }
-                .attendance-table th:not(:first-child),
-                .attendance-table td:not(:first-child) {
-                    padding-left: 12px;
-                }
+                .text-green-700 { color: #15803d; } .bg-green-100 { background: #dcfce7; }
+                .text-red-700 { color: #b91c1c; } .bg-red-100 { background: #fee2e2; }
+                .text-orange-700 { color: #c2410c; } .bg-orange-100 { background: #ffedd5; }
+                .text-gray-700 { color: #374151; } .bg-gray-100 { background: #f3f4f6; }
 
             `}</style>
         </div>

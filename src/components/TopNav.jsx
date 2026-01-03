@@ -92,11 +92,12 @@ const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
           width: 28px; height: 28px; background: var(--color-primary); color: white;
           border-radius: 6px; display: flex; align-items: center; justify-content: center;
           font-weight: 700; font-size: 1rem;
+          box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); /* Slight prominence */
         }
-        .logo-text { font-weight: 600; font-size: 1.1rem; color: #0f172a; letter-spacing: -0.02em; }
+        .logo-text { font-weight: 600; font-size: 1.05rem; color: #475569; letter-spacing: -0.01em; } /* More subtle text */
 
         .nav-divider { 
-          width: 1px; height: 24px; background-color: #e2e8f0; 
+          width: 1px; height: 20px; background-color: #e2e8f0; 
           margin: 0 24px; 
         }
 
@@ -110,20 +111,18 @@ const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
           text-decoration: none; transition: color 0.15s ease;
         }
         .nav-item:hover { color: #0f172a; } /* Darker on hover */
-        
-        .nav-item.active { 
-          color: var(--color-primary); 
-          font-weight: 600; 
+
+        .nav-item.active {
+          color: var(--color-primary);
+          font-weight: 600;
         }
-        /* Active Indicator (Underline) */
+        /* Active Indicator removed as per request */
         .nav-item.active::after {
-          content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
-          height: 2px; background-color: var(--color-primary);
-          border-radius: 2px 2px 0 0;
+          content: none;
         }
 
-        /* Right Section */
-        .nav-right { display: flex; align-items: center; gap: 16px; }
+        /* Right Section - Tighter spacing and vertical centering */
+        .nav-right { display: flex; align-items: center; gap: 10px; }
 
         /* Profile Styles */
         .profile-wrapper { position: relative; }
@@ -142,6 +141,16 @@ const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
           border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
           border-top: 2px solid transparent; 
           display: none; flex-direction: column; padding: 6px; z-index: 50;
+        }
+        /* Invisible bridge to prevent closing on hover gap */
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -20px; /* Bridge the gap to the trigger */
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: transparent;
         }
         .profile-wrapper:hover .dropdown-menu { display: flex; }
 

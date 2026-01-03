@@ -39,7 +39,10 @@ const Employees = () => {
 
             {/* Toolbar: NEW Button + Search */}
             <div className="toolbar-header">
-                <button className="btn-new">NEW</button>
+                <button className="btn-new">
+                    <Plus size={18} />
+                    <span>Add New Employee</span>
+                </button>
 
                 <div className="search-wrapper">
                     <input type="text" placeholder="Search" className="search-input" />
@@ -81,13 +84,18 @@ const Employees = () => {
             padding: 8px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 24px;
         }
         .btn-new {
-            background-color: #a855f7; /* Purple accent */
-            color: white; border: none; padding: 10px 28px; font-weight: 700;
-            border-radius: 6px; cursor: pointer; letter-spacing: 0.5px;
-            box-shadow: 0 4px 6px -1px rgba(168, 85, 247, 0.4);
-            transition: transform 0.1s;
+            display: flex; align-items: center; gap: 8px;
+            background-color: var(--color-primary); /* Use primary blue instead of purple */
+            color: white; border: none; padding: 10px 20px; font-weight: 600;
+            border-radius: 8px; cursor: pointer; font-size: 0.95rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+            transition: all 0.2s ease;
         }
-        .btn-new:active { transform: scale(0.98); }
+        .btn-new:hover { 
+            background-color: #1d4ed8; /* Slightly darker blue */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .btn-new:active { transform: translateY(1px); }
 
         .search-wrapper { position: relative; width: 320px; }
         .search-input {
@@ -106,60 +114,75 @@ const Employees = () => {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;
         }
         
-        /* Card Styles - Doubled Size */
+        /* Card Styles - Premium Visual Elevation */
         .employee-card {
             position: relative; 
-            background: white;
-            border: 1px solid var(--color-border);
-            border-radius: 16px; 
-            padding: 32px; /* Doubled padding */
-            display: flex; align-items: center; gap: 32px; /* Doubled gap */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: all 0.2s ease-in-out;
+            background: linear-gradient(145deg, #ffffff 0%, #fcfcfc 100%); /* Subtle gradient/texture */
+            border: 1px solid rgba(226, 232, 240, 0.8); /* Low contrast border */
+            border-radius: 20px; /* Increased radius */
+            padding: 32px;
+            display: flex; align-items: center; gap: 32px;
+            /* Layered shadows for depth */
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.02), 
+                0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); /* 200ms smooth transition */
             text-decoration: none; color: inherit;
-            min-height: 140px; /* Increased height significantly */
+            min-height: 140px;
         }
         
         .employee-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-color: #e2e8f0;
+            transform: translateY(-4px); /* Subtle lift */
+            /* Enhanced shadow on hover */
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.05), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.01);
+            border-color: rgba(203, 213, 225, 0.8); /* Slightly clearer border on hover */
         }
 
-        /* Avatar - Square and Larger */
+        /* Avatar - Premium Treatment */
         .card-avatar {
             width: 80px; height: 80px; flex-shrink: 0;
-            border-radius: 12px; /* Square with rounded corners */
+            border-radius: 20px; /* Slight squiggle/rounded sq logic */
             overflow: hidden;
-            border: 1px solid #e2e8f0;
+            /* Premium 'Picture Frame' Style */
+            border: 2px solid #ffffff; /* Inner white border for clean separation */
+            display: block; /* Ensure block layout for shadow */
+            box-shadow: 0 0 0 1px #cbd5e1, 0 2px 4px rgba(0,0,0,0.05); /* Outer slate ring + depth shadow */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Info - Scaled up text */
+        /* Info - Typography Refinement */
         .card-info {
             display: flex; flex-direction: column; justify-content: center;
             overflow: hidden;
             flex: 1;
+            gap: 4px; /* Tighter gap */
         }
         .emp-name {
-            font-weight: 700; font-size: 1.4rem; color: var(--color-text-main);
+            font-weight: 700; font-size: 1.25rem; color: #1e293b; /* Reduced from 1.4rem */
+            letter-spacing: -0.02em; line-height: 1.3;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .emp-role {
-            font-size: 1.1rem; color: var(--color-text-secondary); margin-top: 6px;
+            font-size: 0.95rem; color: #64748b; margin-top: 2px; /* Reduced margin */
+            font-weight: 500; letter-spacing: 0.01em;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
         /* Status Top Right */
         .card-status {
-            position: absolute; top: 16px; right: 16px;
+            position: absolute; top: 20px; right: 20px;
         }
         
-        /* Status Dot Styles */
+        /* Status Dot Styles - Soft Glow */
         .status-dot-container {
             width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
             border-radius: 50%;
             position: relative;
+            /* Base glow for all */
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.8);
         }
         
         /* Blink/Pulse Animations */
@@ -174,6 +197,12 @@ const Employees = () => {
             100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); opacity: 1; }
         }
 
+        @keyframes blink-blue {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); opacity: 1; }
+            50% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); opacity: 0.8; }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); opacity: 1; }
+        }
+
         .status-dot-container.green { 
             background-color: #dcfce7;
             animation: blink-green 3s infinite;
@@ -182,12 +211,16 @@ const Employees = () => {
             background-color: #fef9c3;
             animation: blink-yellow 3s infinite;
         }
-        .status-dot-container.blue { background-color: #dbeafe; } /* No blink for leave usually, or add if wanted */
+        .status-dot-container.blue { 
+            background-color: #dbeafe; 
+            animation: blink-blue 3s infinite; /* Added blink animation */
+        }
 
         .status-dot { width: 10px; height: 10px; border-radius: 50%; }
         .status-dot.green-fill { background-color: #22c55e; }
         .status-dot.yellow-fill { background-color: #ca8a04; }
-        .plane-icon { color: #2563eb; transform: rotate(-45deg); display:block;}
+        /* Tilted plane icon - Default is already tilted Top-Right */
+        .plane-icon { color: #2563eb; display:block; }
 
       `}</style>
         </div>
