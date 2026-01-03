@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock } from 'lucide-react';
+import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User } from 'lucide-react';
 
 const Profile = () => {
     const { id } = useParams();
@@ -16,18 +16,19 @@ const Profile = () => {
         email: 'alex.j@company.com',
         phone: '+1 (555) 123-4567',
         reportsTo: 'Michael Chen',
-        skills: ['React', 'Node.js', 'TypeScript', 'AWS'],
-        about: 'Passionate developer with 5+ years of experience in building scalable web applications.',
-        address: '123 Tech Park, San Francisco, CA',
-        salary: {
-            basic: 5000,
-            hra: 2000,
-            allowance: 1000,
-            bonus: 500,
-            deductions: {
-                pf: 250,
-                tax: 150
-            }
+        skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'PostgreSQL'],
+        about: 'Passionate developer with 5+ years of experience in building scalable web applications. Specialized in modern JavaScript frameworks and cloud infrastructure.',
+        address: '123 Tech Park, San Francisco, CA 94105',
+    };
+
+    const salary = {
+        basic: 5000,
+        hra: 2000,
+        allowance: 1000,
+        bonus: 500,
+        deductions: {
+            pf: 250,
+            tax: 150
         }
     };
 
@@ -35,68 +36,108 @@ const Profile = () => {
         switch (activeTab) {
             case 'resume':
                 return (
-                    <div className="tab-content flex flex-col gap-6">
-                        <div className="section">
-                            <h3 className="section-title">About</h3>
-                            <p className="text-secondary">{employee.about}</p>
-                        </div>
-
-                        <div className="section">
-                            <h3 className="section-title">Skills</h3>
-                            <div className="flex gap-2 flex-wrap">
-                                {employee.skills.map(skill => (
-                                    <span key={skill} className="skill-tag">{skill}</span>
-                                ))}
+                    <div className="tab-content">
+                        <div className="resume-section">
+                            <div className="section-card">
+                                <h3 className="section-title">About</h3>
+                                <p className="section-description">{employee.about}</p>
                             </div>
-                        </div>
 
-                        <div className="section">
-                            <h3 className="section-title">Professional Info</h3>
-                            <div className="info-grid">
-                                <InfoItem label="Department" value={employee.dept} icon={<Briefcase size={16} />} />
-                                <InfoItem label="Manager" value={employee.reportsTo} icon={<UserIcon />} />
-                                <InfoItem label="Joined" value={employee.joinDate} icon={<Calendar size={16} />} />
+                            <div className="section-card">
+                                <h3 className="section-title">Skills</h3>
+                                <div className="skills-container">
+                                    {employee.skills.map(skill => (
+                                        <span key={skill} className="skill-tag">{skill}</span>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="section-card">
+                                <h3 className="section-title">Professional Information</h3>
+                                <div className="info-grid">
+                                    <InfoItem 
+                                        label="Department" 
+                                        value={employee.dept} 
+                                        icon={<Briefcase size={18} />} 
+                                    />
+                                    <InfoItem 
+                                        label="Manager" 
+                                        value={employee.reportsTo} 
+                                        icon={<User size={18} />} 
+                                    />
+                                    <InfoItem 
+                                        label="Joined Date" 
+                                        value={employee.joinDate} 
+                                        icon={<Calendar size={18} />} 
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
                 );
 
             case 'salary':
-                if (!isAdmin) return <div className="p-8 text-center text-muted">You do not have permission to view this section.</div>;
+                if (!isAdmin) {
+                    return (
+                        <div className="permission-message">
+                            <Shield size={48} />
+                            <h3>Access Restricted</h3>
+                            <p>You do not have permission to view this section.</p>
+                        </div>
+                    );
+                }
 
-                const totalEarnings = employee.salary.basic + employee.salary.hra + employee.salary.allowance + employee.salary.bonus;
-                const totalDeductions = employee.salary.deductions.pf + employee.salary.deductions.tax;
+                const totalEarnings = salary.basic + salary.hra + salary.allowance + salary.bonus;
+                const totalDeductions = salary.deductions.pf + salary.deductions.tax;
                 const netSalary = totalEarnings - totalDeductions;
 
                 return (
-                    <div className="tab-content flex flex-col gap-6">
-                        <div className="salary-card card bg-primary-light">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-sm text-secondary">Net Monthly Salary</p>
-                                    <h2 className="text-2xl">${netSalary.toLocaleString()}</h2>
+                    <div className="tab-content">
+                        <div className="salary-section">
+                            <div className="salary-summary-card">
+                                <div className="salary-summary-content">
+                                    <div className="salary-summary-info">
+                                        <p className="salary-label">Net Monthly Salary</p>
+                                        <h2 className="salary-amount">${netSalary.toLocaleString()}</h2>
+                                        <p className="salary-period">Current Financial Year 2024-2025</p>
+                                    </div>
                                 </div>
-                                <div className="badge-year">2024-2025</div>
-                            </div>
-                        </div>
-
-                        <div className="salary-breakdown grid-2-col">
-                            <div className="card breakdown-card">
-                                <h4 className="card-title text-green">Earnings</h4>
-                                <div className="row"><span>Basic</span><span>${employee.salary.basic}</span></div>
-                                <div className="row"><span>HRA</span><span>${employee.salary.hra}</span></div>
-                                <div className="row"><span>Special Allowance</span><span>${employee.salary.allowance}</span></div>
-                                <div className="row"><span>Bonus</span><span>${employee.salary.bonus}</span></div>
-                                <div className="divider"></div>
-                                <div className="row total"><span>Total Earnings</span><span>${totalEarnings}</span></div>
                             </div>
 
-                            <div className="card breakdown-card">
-                                <h4 className="card-title text-red">Deductions</h4>
-                                <div className="row"><span>Provident Fund</span><span>${employee.salary.deductions.pf}</span></div>
-                                <div className="row"><span>Professional Tax</span><span>${employee.salary.deductions.tax}</span></div>
-                                <div className="divider"></div>
-                                <div className="row total"><span>Total Deductions</span><span>${totalDeductions}</span></div>
+                            <div className="salary-breakdown">
+                                <div className="breakdown-card earnings-card">
+                                    <div className="breakdown-header">
+                                        <h4 className="breakdown-title earnings-title">Earnings</h4>
+                                    </div>
+                                    <div className="breakdown-content">
+                                        <BreakdownRow label="Basic Salary" value={`$${salary.basic.toLocaleString()}`} />
+                                        <BreakdownRow label="HRA" value={`$${salary.hra.toLocaleString()}`} />
+                                        <BreakdownRow label="Special Allowance" value={`$${salary.allowance.toLocaleString()}`} />
+                                        <BreakdownRow label="Bonus" value={`$${salary.bonus.toLocaleString()}`} />
+                                        <div className="breakdown-divider"></div>
+                                        <BreakdownRow 
+                                            label="Total Earnings" 
+                                            value={`$${totalEarnings.toLocaleString()}`} 
+                                            isTotal={true}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="breakdown-card deductions-card">
+                                    <div className="breakdown-header">
+                                        <h4 className="breakdown-title deductions-title">Deductions</h4>
+                                    </div>
+                                    <div className="breakdown-content">
+                                        <BreakdownRow label="Provident Fund" value={`$${salary.deductions.pf.toLocaleString()}`} />
+                                        <BreakdownRow label="Professional Tax" value={`$${salary.deductions.tax.toLocaleString()}`} />
+                                        <div className="breakdown-divider"></div>
+                                        <BreakdownRow 
+                                            label="Total Deductions" 
+                                            value={`$${totalDeductions.toLocaleString()}`} 
+                                            isTotal={true}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -105,10 +146,28 @@ const Profile = () => {
             case 'private':
                 return (
                     <div className="tab-content">
-                        <div className="info-grid">
-                            <InfoItem label="Email" value={employee.email} icon={<Mail size={16} />} />
-                            <InfoItem label="Phone" value={employee.phone} icon={<Phone size={16} />} />
-                            <InfoItem label="Address" value={employee.address} icon={<MapPin size={16} />} />
+                        <div className="private-section">
+                            <div className="section-card">
+                                <h3 className="section-title">Contact Information</h3>
+                                <div className="info-grid-private">
+                                    <InfoItem 
+                                        label="Email Address" 
+                                        value={employee.email} 
+                                        icon={<Mail size={18} />} 
+                                    />
+                                    <InfoItem 
+                                        label="Phone Number" 
+                                        value={employee.phone} 
+                                        icon={<Phone size={18} />} 
+                                    />
+                                    <InfoItem 
+                                        label="Address" 
+                                        value={employee.address} 
+                                        icon={<MapPin size={18} />} 
+                                        fullWidth={true}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
@@ -116,9 +175,33 @@ const Profile = () => {
             case 'security':
                 return (
                     <div className="tab-content">
-                        <button className="btn btn-outline flex gap-2 items-center">
-                            <Lock size={16} /> Change Password
-                        </button>
+                        <div className="security-section">
+                            <div className="section-card">
+                                <h3 className="section-title">Password & Security</h3>
+                                <p className="section-description">
+                                    Keep your account secure by regularly updating your password.
+                                </p>
+                                <div className="security-actions">
+                                    <button className="btn btn-primary security-btn">
+                                        <Lock size={18} />
+                                        <span>Change Password</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="section-card">
+                                <h3 className="section-title">Two-Factor Authentication</h3>
+                                <p className="section-description">
+                                    Add an extra layer of security to your account with two-factor authentication.
+                                </p>
+                                <div className="security-actions">
+                                    <button className="btn btn-outline security-btn">
+                                        <Shield size={18} />
+                                        <span>Enable 2FA</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 );
 
@@ -127,8 +210,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="profile-container flex flex-col gap-6">
-
+        <div className="profile-container">
             {/* Profile Header */}
             <div className="profile-header card">
                 <div className="header-top">
@@ -136,27 +218,60 @@ const Profile = () => {
                         <img src={`https://i.pravatar.cc/150?u=${id || 1}`} alt="Profile" />
                     </div>
                     <div className="profile-basic">
-                        <h1 className="text-2xl">{employee.name}</h1>
-                        <p className="text-secondary">{employee.role}</p>
-                        <div className="flex gap-4 mt-2">
-                            <span className="info-pill"><Mail size={14} /> {employee.email}</span>
-                            <span className="info-pill"><MapPin size={14} /> San Francisco</span>
+                        <h1 className="profile-name">{employee.name}</h1>
+                        <p className="profile-role">{employee.role}</p>
+                        <div className="profile-info-pills">
+                            <span className="info-pill">
+                                <Mail size={14} />
+                                <span>{employee.email}</span>
+                            </span>
+                            <span className="info-pill">
+                                <MapPin size={14} />
+                                <span>San Francisco</span>
+                            </span>
                         </div>
                     </div>
                     <div className="header-actions">
-                        {/* Admin Toggle for Demo */}
-                        <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
-                            <input type="checkbox" checked={isAdmin} onChange={e => setIsAdmin(e.target.checked)} />
-                            View as Admin
+                        <label className="admin-toggle">
+                            <input 
+                                type="checkbox" 
+                                checked={isAdmin} 
+                                onChange={e => setIsAdmin(e.target.checked)} 
+                            />
+                            <span>View as Admin</span>
                         </label>
                     </div>
                 </div>
 
                 <div className="header-tabs">
-                    <TabButton id="resume" label="Resume" icon={<FileText size={16} />} active={activeTab} onClick={setActiveTab} />
-                    <TabButton id="private" label="Private Info" icon={<Shield size={16} />} active={activeTab} onClick={setActiveTab} />
-                    <TabButton id="salary" label="Salary Info" icon={<DollarSign size={16} />} active={activeTab} onClick={setActiveTab} />
-                    <TabButton id="security" label="Security" icon={<Lock size={16} />} active={activeTab} onClick={setActiveTab} />
+                    <TabButton 
+                        id="resume" 
+                        label="Resume" 
+                        icon={<FileText size={18} />} 
+                        active={activeTab} 
+                        onClick={setActiveTab} 
+                    />
+                    <TabButton 
+                        id="private" 
+                        label="Private Info" 
+                        icon={<Shield size={18} />} 
+                        active={activeTab} 
+                        onClick={setActiveTab} 
+                    />
+                    <TabButton 
+                        id="salary" 
+                        label="Salary Info" 
+                        icon={<DollarSign size={18} />} 
+                        active={activeTab} 
+                        onClick={setActiveTab} 
+                    />
+                    <TabButton 
+                        id="security" 
+                        label="Security" 
+                        icon={<Lock size={18} />} 
+                        active={activeTab} 
+                        onClick={setActiveTab} 
+                    />
                 </div>
             </div>
 
@@ -166,140 +281,473 @@ const Profile = () => {
             </div>
 
             <style>{`
-        .profile-container {
-          max-width: 900px;
-          margin: 0 auto;
-        }
-        .profile-header {
-          padding: 0;
-          overflow: hidden;
-        }
-        .header-top {
-          padding: 32px;
-          display: flex;
-          gap: 24px;
-          align-items: center;
-        }
-        .profile-img-lg {
-          width: 100px;
-          height: 100px;
-          border-radius: 50%;
-          overflow: hidden;
-          border: 4px solid var(--color-bg);
-          box-shadow: var(--shadow-sm);
-        }
-        .profile-img-lg img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .profile-basic { flex: 1; }
-        .info-pill {
-          display: flex; align-items: center; gap: 6px;
-          font-size: 0.85rem; color: var(--color-text-secondary);
-        }
+                .profile-container {
+                    max-width: 1000px;
+                    margin: 0 auto;
+                    padding: 24px;
+                }
 
-        .header-tabs {
-          display: flex;
-          padding: 0 32px;
-          border-top: 1px solid var(--color-border);
-          background-color: #fcfcfc;
-        }
-        .tab-btn {
-          padding: 16px 20px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 0.95rem;
-          color: var(--color-text-secondary);
-          border-bottom: 2px solid transparent;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .tab-btn:hover { color: var(--color-primary); background-color: rgba(0,0,0,0.02); }
-        .tab-btn.active {
-          color: var(--color-primary);
-          border-bottom-color: var(--color-primary);
-          font-weight: 500;
-        }
+                /* Profile Header */
+                .profile-header {
+                    padding: 0;
+                    overflow: hidden;
+                    margin-bottom: 24px;
+                }
+                .header-top {
+                    padding: 40px 32px;
+                    display: flex;
+                    gap: 32px;
+                    align-items: flex-start;
+                    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+                }
+                .profile-img-lg {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    border: 4px solid var(--color-surface);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    flex-shrink: 0;
+                }
+                .profile-img-lg img { 
+                    width: 100%; 
+                    height: 100%; 
+                    object-fit: cover; 
+                }
+                
+                .profile-basic { 
+                    flex: 1;
+                    min-width: 0;
+                }
+                .profile-name {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    color: var(--color-text-main);
+                    margin: 0 0 8px 0;
+                }
+                .profile-role {
+                    font-size: 1.1rem;
+                    color: var(--color-text-secondary);
+                    margin: 0 0 16px 0;
+                }
+                .profile-info-pills {
+                    display: flex;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                }
+                .info-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 8px 14px;
+                    background: var(--color-surface);
+                    border: 1px solid var(--color-border);
+                    border-radius: 20px;
+                    font-size: 0.875rem;
+                    color: var(--color-text-secondary);
+                }
+                .info-pill svg {
+                    flex-shrink: 0;
+                }
 
-        .section-title {
-          font-size: 1.1rem;
-          margin-bottom: 12px;
-          font-weight: 600;
-        }
-        .skill-tag {
-          padding: 6px 14px;
-          background-color: var(--color-bg);
-          border: 1px solid var(--color-border);
-          border-radius: 100px;
-          font-size: 0.85rem;
-        }
+                .header-actions {
+                    display: flex;
+                    align-items: flex-start;
+                    padding-top: 4px;
+                }
+                .admin-toggle {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 0.875rem;
+                    color: var(--color-text-secondary);
+                    cursor: pointer;
+                }
+                .admin-toggle input[type="checkbox"] {
+                    cursor: pointer;
+                    width: 16px;
+                    height: 16px;
+                }
 
-        .info-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 16px;
-        }
-        .info-item {
-          display: flex;
-          gap: 12px;
-        }
-        .info-icon {
-          width: 32px; height: 32px;
-          background: var(--color-bg);
-          border-radius: 6px;
-          display: flex; align-items: center; justify-content: center;
-          color: var(--color-text-muted);
-        }
-        .info-label { font-size: 0.75rem; color: var(--color-text-muted); }
-        .info-value { font-size: 0.95rem; font-weight: 500; }
+                .header-tabs {
+                    display: flex;
+                    border-top: 1px solid var(--color-border);
+                    background-color: #fafbfc;
+                }
+                .tab-btn {
+                    padding: 18px 24px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 0.95rem;
+                    color: var(--color-text-secondary);
+                    border-bottom: 3px solid transparent;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    background: none;
+                    border-left: none;
+                    border-right: none;
+                    border-top: none;
+                    font-weight: 500;
+                }
+                .tab-btn:hover { 
+                    color: var(--color-primary); 
+                    background-color: rgba(37, 99, 235, 0.05);
+                }
+                .tab-btn.active {
+                    color: var(--color-primary);
+                    border-bottom-color: var(--color-primary);
+                    background-color: transparent;
+                }
+                .tab-btn svg {
+                    flex-shrink: 0;
+                }
 
-        .salary-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .grid-2-col { grid-template-columns: 1fr 1fr; }
-        .breakdown-card { padding: 24px; }
-        .row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.95rem; }
-        .card-title { margin-bottom: 16px; font-weight: 600; }
-        .text-green { color: var(--color-status-green); }
-        .text-red { color: var(--color-status-red); }
-        .total { font-weight: 700; font-size: 1.1rem; padding-top: 12px; }
-        
-        .bg-primary-light {
-          background: linear-gradient(135deg, var(--color-primary) 0%, #1e40af 100%);
-          color: white;
-        }
-        .bg-primary-light .text-secondary { color: rgba(255,255,255,0.8); }
-        .badge-year {
-          padding: 4px 12px;
-          background: rgba(255,255,255,0.2);
-          border-radius: 100px;
-          font-size: 0.85rem;
-        }
+                /* Profile Body */
+                .profile-body {
+                    min-height: 400px;
+                }
+                .tab-content {
+                    animation: fadeIn 0.3s ease-in;
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
 
-        @media (max-width: 768px) {
-          .header-top { flex-direction: column; text-align: center; }
-          .profile-basic .flex { justify-content: center; }
-          .salary-breakdown { grid-template-columns: 1fr; }
-          .header-tabs { overflow-x: auto; }
-        }
-      `}</style>
+                /* Section Card */
+                .section-card {
+                    background: var(--color-surface);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-lg);
+                    padding: 32px;
+                    margin-bottom: 0;
+                }
+                .section-title {
+                    font-size: 1.35rem;
+                    font-weight: 600;
+                    color: var(--color-text-main);
+                    margin: 0 0 20px 0;
+                }
+                .section-description {
+                    font-size: 0.95rem;
+                    line-height: 1.7;
+                    color: var(--color-text-secondary);
+                    margin: 0 0 24px 0;
+                }
+
+                /* Resume Section */
+                .resume-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                }
+
+                /* Skills */
+                .skills-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                }
+                .skill-tag {
+                    padding: 10px 18px;
+                    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+                    border: 1px solid #bfdbfe;
+                    border-radius: 24px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    color: var(--color-primary);
+                    transition: all 0.2s;
+                }
+                .skill-tag:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+                }
+
+                /* Info Grid */
+                .info-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 24px;
+                }
+                .info-grid-private {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 24px;
+                }
+                .info-item {
+                    display: flex;
+                    gap: 16px;
+                    align-items: flex-start;
+                }
+                .info-item.full-width {
+                    grid-column: 1 / -1;
+                }
+                .info-icon {
+                    width: 44px;
+                    height: 44px;
+                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                    border: 1px solid var(--color-border);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--color-primary);
+                    flex-shrink: 0;
+                }
+                .info-content {
+                    flex: 1;
+                    min-width: 0;
+                }
+                .info-label { 
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    color: var(--color-text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 6px;
+                    display: block;
+                }
+                .info-value { 
+                    font-size: 1rem;
+                    font-weight: 500;
+                    color: var(--color-text-main);
+                    word-break: break-word;
+                }
+
+                /* Salary Section */
+                .salary-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                }
+                .salary-summary-card {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: var(--radius-lg);
+                    padding: 32px;
+                    color: white;
+                    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+                }
+                .salary-summary-content {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                }
+                .salary-summary-info {
+                    width: 100%;
+                }
+                .salary-label {
+                    font-size: 0.875rem;
+                    color: rgba(255, 255, 255, 0.85);
+                    margin: 0 0 8px 0;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .salary-amount {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    margin: 0 0 6px 0;
+                    line-height: 1.2;
+                }
+                .salary-period {
+                    font-size: 0.8rem;
+                    color: rgba(255, 255, 255, 0.75);
+                    margin: 0;
+                    font-weight: 500;
+                }
+
+                .salary-breakdown {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                    gap: 24px;
+                }
+                .breakdown-card {
+                    background: var(--color-surface);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-lg);
+                    padding: 32px;
+                }
+                .breakdown-header {
+                    margin-bottom: 24px;
+                    padding-bottom: 16px;
+                    border-bottom: 2px solid var(--color-border);
+                }
+                .breakdown-title {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin: 0;
+                }
+                .earnings-title {
+                    color: var(--color-status-green);
+                }
+                .deductions-title {
+                    color: var(--color-status-red);
+                }
+                .breakdown-content {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+                .breakdown-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 12px 0;
+                }
+                .breakdown-row.total {
+                    padding-top: 20px;
+                    margin-top: 8px;
+                    border-top: 2px solid var(--color-border);
+                }
+                .breakdown-label {
+                    font-size: 0.95rem;
+                    color: var(--color-text-secondary);
+                    font-weight: 500;
+                }
+                .breakdown-value {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: var(--color-text-main);
+                }
+                .breakdown-row.total .breakdown-label,
+                .breakdown-row.total .breakdown-value {
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                }
+                .breakdown-row.total .breakdown-value {
+                    color: var(--color-primary);
+                }
+                .breakdown-divider {
+                    height: 1px;
+                    background: var(--color-divider);
+                    margin: 8px 0;
+                }
+
+                /* Private Section */
+                .private-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                }
+
+                /* Security Section */
+                .security-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                }
+                .security-actions {
+                    margin-top: 8px;
+                }
+                .security-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 12px 24px;
+                    font-size: 0.95rem;
+                    font-weight: 500;
+                    border-radius: var(--radius-md);
+                    transition: all 0.2s;
+                    cursor: pointer;
+                }
+                .security-btn svg {
+                    flex-shrink: 0;
+                }
+
+                /* Permission Message */
+                .permission-message {
+                    text-align: center;
+                    padding: 80px 32px;
+                    background: var(--color-surface);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-lg);
+                }
+                .permission-message svg {
+                    color: var(--color-text-muted);
+                    margin-bottom: 24px;
+                }
+                .permission-message h3 {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: var(--color-text-main);
+                    margin: 0 0 12px 0;
+                }
+                .permission-message p {
+                    font-size: 0.95rem;
+                    color: var(--color-text-secondary);
+                    margin: 0;
+                }
+
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .profile-container {
+                        padding: 16px;
+                    }
+                    .header-top {
+                        flex-direction: column;
+                        text-align: center;
+                        align-items: center;
+                        padding: 32px 24px;
+                    }
+                    .profile-basic {
+                        text-align: center;
+                    }
+                    .profile-info-pills {
+                        justify-content: center;
+                    }
+                    .salary-breakdown {
+                        grid-template-columns: 1fr;
+                    }
+                    .salary-amount {
+                        font-size: 1.75rem;
+                    }
+                    .header-tabs {
+                        overflow-x: auto;
+                        -webkit-overflow-scrolling: touch;
+                    }
+                    .tab-btn {
+                        padding: 16px 20px;
+                        font-size: 0.9rem;
+                    }
+                    .info-grid,
+                    .info-grid-private {
+                        grid-template-columns: 1fr;
+                    }
+                    .section-card {
+                        padding: 24px;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
 
 const TabButton = ({ id, label, icon, active, onClick }) => (
-    <div className={`tab-btn ${active === id ? 'active' : ''}`} onClick={() => onClick(id)}>
+    <button 
+        type="button"
+        className={`tab-btn ${active === id ? 'active' : ''}`} 
+        onClick={() => onClick(id)}
+    >
         {icon} {label}
-    </div>
+    </button>
 );
 
-const InfoItem = ({ label, value, icon }) => (
-    <div className="info-item">
+const InfoItem = ({ label, value, icon, fullWidth }) => (
+    <div className={`info-item ${fullWidth ? 'full-width' : ''}`}>
         <div className="info-icon">{icon}</div>
-        <div>
-            <div className="info-label">{label}</div>
+        <div className="info-content">
+            <span className="info-label">{label}</span>
             <div className="info-value">{value}</div>
         </div>
     </div>
 );
 
-const UserIcon = () => <Briefcase size={16} />;
+const BreakdownRow = ({ label, value, isTotal = false }) => (
+    <div className={`breakdown-row ${isTotal ? 'total' : ''}`}>
+        <span className="breakdown-label">{label}</span>
+        <span className="breakdown-value">{value}</span>
+    </div>
+);
 
 export default Profile;
