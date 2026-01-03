@@ -9,7 +9,20 @@ import Employee from '../models/Employee.js';
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    let user = null;
+
+    // Check if input is Email or Employee Code
+    const isEmail = email.includes('@');
+
+    if (isEmail) {
+        user = await User.findOne({ email });
+    } else {
+        // Assume it's Employee Code
+        const employee = await Employee.findOne({ employeeCode: email });
+        if (employee) {
+            user = await User.findById(employee.userId);
+        }
+    }
 
     if (user && (await user.matchPassword(password))) {
         // Fetch employee details if linked
@@ -28,7 +41,7 @@ const loginUser = asyncHandler(async (req, res) => {
         });
     } else {
         res.status(401);
-        throw new Error('Invalid email or password');
+        throw new Error('Invalid credentials');
     }
 });
 
@@ -61,6 +74,10 @@ const registerUser = asyncHandler(async (req, res) => {
             lastName = parts.length > 1 ? parts.slice(1).join(' ') : '';
         }
 
+        // Generate a random Employee Code (Simple Logic: EMP + Random 4 Digits)
+        // In a real app, this should be sequential or checked for uniqueness.
+        const empCode = 'EMP' + Math.floor(1000 + Math.random() * 9000);
+
         // Create detailed Employee profile linked to User
         const newEmployee = await Employee.create({
             userId: user._id,
@@ -73,6 +90,7 @@ const registerUser = asyncHandler(async (req, res) => {
             salary: 0,
             address: 'Please update address',
             phoneNumber: phone || '0000000000',
+            employeeCode: empCode, // Save the generated code
             profilePicture: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=random`
         });
 
@@ -84,6 +102,7 @@ const registerUser = asyncHandler(async (req, res) => {
             email: user.email,
             role: user.role,
             employeeId: user.employeeId,
+            employeeCode: empCode,
             token: generateToken(user._id),
         });
     } else {

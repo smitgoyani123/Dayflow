@@ -10,6 +10,11 @@ const employeeSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    employeeCode: {
+        type: String,
+        unique: true,
+        sparse: true, // Allows null/undefined to not conflict, basically unique if exists
+    },
     lastName: {
         type: String,
         required: true,
