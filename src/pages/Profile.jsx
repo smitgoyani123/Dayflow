@@ -19,23 +19,28 @@ const Profile = () => {
         skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'PostgreSQL'],
         certifications: ['AWS Certified Solutions Architect', 'Meta Frontend Developer'],
         about: 'Passionate developer with 5+ years of experience in building scalable web applications. Specialized in modern JavaScript frameworks and cloud infrastructure.',
-        jobLove: 'I thrive on solving complex architectural challenges and seeing code come to life. The collaborative environment and focus on innovation here make every day exciting.',
-        hobbies: 'Photography, Hiking, Playing Guitar, Reading Sci-Fi novels',
+        jobLove: 'I love solving complex problems and building tools that make people\'s lives easier. The collaborative culture here is amazing.',
+        hobbies: 'Hiking, Photography, Open Source Contributing, Sci-Fi Novels',
         address: '123 Tech Park, San Francisco, CA 94105',
     });
 
+    // Handlers for updates
     const handleUpdate = (field, value) => {
         setEmployee(prev => ({ ...prev, [field]: value }));
     };
 
     const handleAddList = (field, item) => {
-        if (item && !employee[field].includes(item)) {
-            setEmployee(prev => ({ ...prev, [field]: [...prev[field], item] }));
-        }
+        setEmployee(prev => ({
+            ...prev,
+            [field]: [...prev[field], item]
+        }));
     };
 
-    const handleRemoveList = (field, item) => {
-        setEmployee(prev => ({ ...prev, [field]: prev[field].filter(i => i !== item) }));
+    const handleRemoveList = (field, itemToRemove) => {
+        setEmployee(prev => ({
+            ...prev,
+            [field]: prev[field].filter(i => i !== itemToRemove)
+        }));
     };
 
     const salary = {
@@ -65,59 +70,58 @@ const Profile = () => {
             case 'resume':
                 return (
                     <div className="tab-content">
-                        <div className="resume-grid">
-                            <div className="resume-left">
-                                <EditableSection 
-                                    title="About" 
-                                    content={employee.about} 
-                                    onSave={(val) => handleUpdate('about', val)}
-                                />
-                                <EditableSection 
-                                    title="What I love about my job" 
-                                    content={employee.jobLove} 
-                                    onSave={(val) => handleUpdate('jobLove', val)}
-                                />
-                                <EditableSection 
-                                    title="My interests and hobbies" 
-                                    content={employee.hobbies} 
-                                    onSave={(val) => handleUpdate('hobbies', val)}
-                                />
+                        <div className="resume-section">
+                            <EditableSection
+                                title="About"
+                                content={employee.about}
+                                onSave={(val) => handleUpdate('about', val)}
+                            />
 
-                                <div className="section-card">
-                                    <h3 className="section-title">Professional Information</h3>
-                                    <div className="info-grid">
-                                        <InfoItem 
-                                            label="Department" 
-                                            value={employee.dept} 
-                                            icon={<Briefcase size={18} />} 
-                                        />
-                                        <InfoItem 
-                                            label="Manager" 
-                                            value={employee.reportsTo} 
-                                            icon={<User size={18} />} 
-                                        />
-                                        <InfoItem 
-                                            label="Joined Date" 
-                                            value={employee.joinDate} 
-                                            icon={<Calendar size={18} />} 
-                                        />
-                                    </div>
+                            <EditableSection
+                                title="What I love about my job"
+                                content={employee.jobLove}
+                                onSave={(val) => handleUpdate('jobLove', val)}
+                            />
+
+                            <EditableSection
+                                title="My interests and hobbies"
+                                content={employee.hobbies}
+                                onSave={(val) => handleUpdate('hobbies', val)}
+                            />
+
+                            <ListSection
+                                title="Skills"
+                                items={employee.skills}
+                                onAdd={(item) => handleAddList('skills', item)}
+                                onRemove={(item) => handleRemoveList('skills', item)}
+                            />
+
+                            <ListSection
+                                title="Certifications"
+                                items={employee.certifications}
+                                onAdd={(item) => handleAddList('certifications', item)}
+                                onRemove={(item) => handleRemoveList('certifications', item)}
+                            />
+
+                            <div className="section-card">
+                                <h3 className="section-title">Professional Information</h3>
+                                <div className="info-grid">
+                                    <InfoItem
+                                        label="Department"
+                                        value={employee.dept}
+                                        icon={<Briefcase size={18} />}
+                                    />
+                                    <InfoItem
+                                        label="Manager"
+                                        value={employee.reportsTo}
+                                        icon={<User size={18} />}
+                                    />
+                                    <InfoItem
+                                        label="Joined Date"
+                                        value={employee.joinDate}
+                                        icon={<Calendar size={18} />}
+                                    />
                                 </div>
-                            </div>
-
-                            <div className="resume-right">
-                                <ListSection 
-                                    title="Skills" 
-                                    items={employee.skills} 
-                                    onAdd={(item) => handleAddList('skills', item)}
-                                    onRemove={(item) => handleRemoveList('skills', item)}
-                                />
-                                <ListSection 
-                                    title="Certification" 
-                                    items={employee.certifications} 
-                                    onAdd={(item) => handleAddList('certifications', item)}
-                                    onRemove={(item) => handleRemoveList('certifications', item)}
-                                />
                             </div>
                         </div>
                     </div>
@@ -175,43 +179,43 @@ const Profile = () => {
                                 {/* Left Column - Salary Components */}
                                 <div className="salary-components-column">
                                     <h3 className="salary-column-title">Salary Components</h3>
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Basic Salary"
                                         amount={salary.components.basic.amount}
                                         percentage={salary.components.basic.percentage}
                                         description={salary.components.basic.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="House Rent Allowance (HRA)"
                                         amount={salary.components.hra.amount}
                                         percentage={salary.components.hra.percentage}
                                         description={salary.components.hra.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Standard Allowance"
                                         amount={salary.components.standardAllowance.amount}
                                         percentage={salary.components.standardAllowance.percentage}
                                         description={salary.components.standardAllowance.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Performance Bonus"
                                         amount={salary.components.performanceBonus.amount}
                                         percentage={salary.components.performanceBonus.percentage}
                                         description={salary.components.performanceBonus.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Leave Travel Allowance (LTA)"
                                         amount={salary.components.lta.amount}
                                         percentage={salary.components.lta.percentage}
                                         description={salary.components.lta.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Fixed Allowance"
                                         amount={salary.components.fixedAllowance.amount}
                                         percentage={salary.components.fixedAllowance.percentage}
@@ -222,15 +226,15 @@ const Profile = () => {
                                 {/* Right Column - Contributions and Deductions */}
                                 <div className="salary-contributions-column">
                                     <h3 className="salary-column-title">Provident Fund (PF) Contribution</h3>
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Employee"
                                         amount={salary.pf.employee.amount}
                                         percentage={salary.pf.employee.percentage}
                                         description={salary.pf.employee.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Employer"
                                         amount={salary.pf.employer.amount}
                                         percentage={salary.pf.employer.percentage}
@@ -240,8 +244,8 @@ const Profile = () => {
                                     <div className="salary-section-divider"></div>
 
                                     <h3 className="salary-column-title">Tax Deductions</h3>
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Professional Tax"
                                         amount={salary.tax.professionalTax.amount}
                                         description={salary.tax.professionalTax.description}
@@ -259,20 +263,20 @@ const Profile = () => {
                             <div className="section-card">
                                 <h3 className="section-title">Contact Information</h3>
                                 <div className="info-grid-private">
-                                    <InfoItem 
-                                        label="Email Address" 
-                                        value={employee.email} 
-                                        icon={<Mail size={18} />} 
+                                    <InfoItem
+                                        label="Email Address"
+                                        value={employee.email}
+                                        icon={<Mail size={18} />}
                                     />
-                                    <InfoItem 
-                                        label="Phone Number" 
-                                        value={employee.phone} 
-                                        icon={<Phone size={18} />} 
+                                    <InfoItem
+                                        label="Phone Number"
+                                        value={employee.phone}
+                                        icon={<Phone size={18} />}
                                     />
-                                    <InfoItem 
-                                        label="Address" 
-                                        value={employee.address} 
-                                        icon={<MapPin size={18} />} 
+                                    <InfoItem
+                                        label="Address"
+                                        value={employee.address}
+                                        icon={<MapPin size={18} />}
                                         fullWidth={true}
                                     />
                                 </div>
@@ -342,10 +346,10 @@ const Profile = () => {
                     </div>
                     <div className="header-actions">
                         <label className="admin-toggle">
-                            <input 
-                                type="checkbox" 
-                                checked={isAdmin} 
-                                onChange={e => setIsAdmin(e.target.checked)} 
+                            <input
+                                type="checkbox"
+                                checked={isAdmin}
+                                onChange={e => setIsAdmin(e.target.checked)}
                             />
                             <span>View as Admin</span>
                         </label>
@@ -353,33 +357,33 @@ const Profile = () => {
                 </div>
 
                 <div className="header-tabs">
-                    <TabButton 
-                        id="resume" 
-                        label="Resume" 
-                        icon={<FileText size={18} />} 
-                        active={activeTab} 
-                        onClick={setActiveTab} 
+                    <TabButton
+                        id="resume"
+                        label="Resume"
+                        icon={<FileText size={18} />}
+                        active={activeTab}
+                        onClick={setActiveTab}
                     />
-                    <TabButton 
-                        id="private" 
-                        label="Private Info" 
-                        icon={<Shield size={18} />} 
-                        active={activeTab} 
-                        onClick={setActiveTab} 
+                    <TabButton
+                        id="private"
+                        label="Private Info"
+                        icon={<Shield size={18} />}
+                        active={activeTab}
+                        onClick={setActiveTab}
                     />
-                    <TabButton 
-                        id="salary" 
-                        label="Salary Info" 
-                        icon={<DollarSign size={18} />} 
-                        active={activeTab} 
-                        onClick={setActiveTab} 
+                    <TabButton
+                        id="salary"
+                        label="Salary Info"
+                        icon={<DollarSign size={18} />}
+                        active={activeTab}
+                        onClick={setActiveTab}
                     />
-                    <TabButton 
-                        id="security" 
-                        label="Security" 
-                        icon={<Lock size={18} />} 
-                        active={activeTab} 
-                        onClick={setActiveTab} 
+                    <TabButton
+                        id="security"
+                        label="Security"
+                        icon={<Lock size={18} />}
+                        active={activeTab}
+                        onClick={setActiveTab}
                     />
                 </div>
             </div>
@@ -545,51 +549,36 @@ const Profile = () => {
                     margin: 0 0 24px 0;
                 }
 
-                /* Resume Grid Layout */
-                .resume-grid {
-                    display: grid;
-                    grid-template-columns: 3fr 2fr;
-                    gap: 24px;
-                }
-                .resume-left {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 24px;
-                }
-                .resume-right {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 24px;
-                }
-                
+
+
                 /* Editable Section */
                 .section-header-row {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 20px;
+                    margin-bottom: 24px;
                 }
-                .section-title {
+                .section-header-row .section-title {
                     margin-bottom: 0;
                 }
+                .section-title {
+                    font-size: 1.35rem;
+                    font-weight: 600;
+                    color: var(--color-text-main);
+                    margin: 0 0 24px 0;
+                }
                 .edit-btn {
-                    background: none;
-                    border: none;
-                    color: var(--color-text-muted);
-                    cursor: pointer;
                     padding: 8px;
                     border-radius: 50%;
+                    color: var(--color-text-muted);
+                    cursor: pointer;
                     transition: all 0.2s;
+                    background: transparent;
+                    border: none;
                 }
                 .edit-btn:hover {
+                    background-color: var(--color-background);
                     color: var(--color-primary);
-                    background-color: var(--color-surface-hover);
-                }
-                
-                .edit-form {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
                 }
                 .edit-textarea {
                     width: 100%;
@@ -600,63 +589,54 @@ const Profile = () => {
                     font-family: inherit;
                     font-size: 0.95rem;
                     resize: vertical;
+                    margin-bottom: 16px;
+                }
+                .edit-textarea:focus {
+                    outline: none;
+                    border-color: var(--color-primary);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
                 }
                 .edit-actions {
                     display: flex;
                     gap: 12px;
                     justify-content: flex-end;
                 }
-                .btn-save {
+                .btn-save, .btn-cancel {
                     display: flex;
                     align-items: center;
                     gap: 6px;
                     padding: 8px 16px;
-                    background-color: var(--color-primary);
-                    color: white;
-                    border: none;
                     border-radius: var(--radius-md);
                     font-size: 0.9rem;
                     font-weight: 500;
                     cursor: pointer;
+                }
+                .btn-save {
+                    background: var(--color-primary);
+                    color: white;
+                    border: none;
                 }
                 .btn-cancel {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding: 8px 16px;
-                    background-color: transparent;
+                    background: white;
                     border: 1px solid var(--color-border);
                     color: var(--color-text-secondary);
-                    border-radius: var(--radius-md);
-                    font-size: 0.9rem;
-                    font-weight: 500;
-                    cursor: pointer;
                 }
 
-                /* Add Item Form */
-                .add-item-form {
-                    margin-top: 16px;
-                    display: flex;
-                    gap: 8px;
-                }
-                .add-input {
-                    flex: 1;
-                    padding: 8px 12px;
-                    border: 1px solid var(--color-border);
-                    border-radius: var(--radius-md);
-                    font-size: 0.9rem;
-                }
-                .add-btn-submit {
-                    width: 36px;
-                    height: 36px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: var(--color-primary);
-                    color: white;
-                    border: none;
-                    border-radius: var(--radius-md);
+                /* List Section */
+                .remove-skill-btn {
+                    margin-left: 8px;
+                    color: var(--color-text-muted);
                     cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    border: none;
+                    background: none;
+                    padding: 2px;
+                    border-radius: 50%;
+                }
+                .remove-skill-btn:hover {
+                    background: rgba(0,0,0,0.05);
+                    color: #ef4444;
                 }
                 .add-trigger-btn {
                     margin-top: 16px;
@@ -674,51 +654,61 @@ const Profile = () => {
                 .add-trigger-btn:hover {
                     text-decoration: underline;
                 }
-                
-                .skill-tag {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding-right: 8px; /* Extra padding for X icon */
+                .add-item-form {
+                    margin-top: 16px;
+                    display: flex;
+                    gap: 8px;
                 }
-                .remove-skill-btn {
-                    background: none;
-                    border: none;
-                    color: currentColor;
-                    opacity: 0.6;
-                    cursor: pointer;
-                    padding: 0;
+                .add-input {
+                    flex: 1;
+                    padding: 8px 12px;
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-md);
+                    font-size: 0.9rem;
+                }
+                .add-input:focus {
+                    outline: none;
+                    border-color: var(--color-primary);
+                }
+                .add-btn-submit {
+                    width: 36px;
+                    height: 36px;
                     display: flex;
                     align-items: center;
-                }
-                .remove-skill-btn:hover {
-                    opacity: 1;
+                    justify-content: center;
+                    background: var(--color-primary);
+                    color: white;
+                    border: none;
+                    border-radius: var(--radius-md);
+                    cursor: pointer;
                 }
 
-                /* Responsive grid */
-                @media (max-width: 900px) {
-                    .resume-grid {
-                        grid-template-columns: 1fr;
-                    }
-                }
-                .skills-container {
+                /* Resume Section (Legacy support if needed, but overridden) */
+                .resume-section {
                     display: flex;
-                    flex-wrap: wrap;
-                    gap: 12px;
+                    flex-direction: column;
+                    gap: 24px;
                 }
+
+                /* Skills Tag Update */
                 .skill-tag {
-                    padding: 10px 18px;
+                    padding: 8px 14px;
                     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
                     border: 1px solid #bfdbfe;
-                    border-radius: 24px;
+                    border-radius: 20px;
                     font-size: 0.9rem;
                     font-weight: 500;
                     color: var(--color-primary);
                     transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
                 }
-                .skill-tag:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+
+                /* Responsive */
+                @media (max-width: 900px) {
+                    .resume-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
 
                 /* Info Grid */
@@ -889,6 +879,18 @@ const Profile = () => {
                 }
 
                 /* Private Section */
+                .resume-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                }
+
+                /* Skills */
+                .skills-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                }
                 .private-section {
                     display: flex;
                     flex-direction: column;
@@ -988,9 +990,9 @@ const Profile = () => {
 };
 
 const TabButton = ({ id, label, icon, active, onClick }) => (
-    <button 
+    <button
         type="button"
-        className={`tab-btn ${active === id ? 'active' : ''}`} 
+        className={`tab-btn ${active === id ? 'active' : ''}`}
         onClick={() => onClick(id)}
     >
         {icon} {label}
@@ -1025,6 +1027,7 @@ const SalaryComponent = ({ label, amount, percentage, description }) => (
     </div>
 );
 
+// Helper Components
 const EditableSection = ({ title, content, onSave }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [tempContent, setTempContent] = useState(content);
@@ -1049,10 +1052,10 @@ const EditableSection = ({ title, content, onSave }) => {
                     </button>
                 )}
             </div>
-            
+
             {isEditing ? (
                 <div className="edit-form">
-                    <textarea 
+                    <textarea
                         className="edit-textarea"
                         value={tempContent}
                         onChange={(e) => setTempContent(e.target.value)}
@@ -1098,10 +1101,10 @@ const ListSection = ({ title, items, onAdd, onRemove }) => {
                     </span>
                 ))}
             </div>
-            
+
             {isAdding ? (
                 <div className="add-item-form">
-                    <input 
+                    <input
                         className="add-input"
                         value={newItem}
                         onChange={(e) => setNewItem(e.target.value)}
@@ -1112,7 +1115,7 @@ const ListSection = ({ title, items, onAdd, onRemove }) => {
                     <button className="add-btn-submit" onClick={handleAdd}>
                         <Check size={16} />
                     </button>
-                    <button className="add-btn-submit" style={{backgroundColor: '#ef4444'}} onClick={() => setIsAdding(false)}>
+                    <button className="add-btn-submit" style={{ backgroundColor: '#ef4444', marginLeft: '4px' }} onClick={() => setIsAdding(false)}>
                         <X size={16} />
                     </button>
                 </div>
