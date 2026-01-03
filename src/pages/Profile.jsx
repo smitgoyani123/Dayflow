@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User } from 'lucide-react';
 
@@ -6,42 +6,73 @@ const Profile = () => {
     const { id } = useParams();
     const [activeTab, setActiveTab] = useState('resume');
     const [isAdmin, setIsAdmin] = useState(true); // Toggle for demo
+    const [employee, setEmployee] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Mock Employee Data
-    const employee = {
-        name: 'Alex Johnson',
-        role: 'Software Engineer',
-        dept: 'Engineering',
-        joinDate: 'Jan 15, 2022',
-        email: 'alex.j@company.com',
-        phone: '+1 (555) 123-4567',
-        reportsTo: 'Michael Chen',
-        skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'PostgreSQL'],
-        about: 'Passionate developer with 5+ years of experience in building scalable web applications. Specialized in modern JavaScript frameworks and cloud infrastructure.',
-        address: '123 Tech Park, San Francisco, CA 94105',
-    };
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                // Determine endpoint: if id is 'me', use profile endpoint, else use admin ID endpoint
+                // Note: The App.jsx route is /profile/:id. 'me' is a valid :id here.
+                const endpoint = id === 'me' ? '/api/employees/profile' : `/api/employees/${id}`;
 
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch profile');
+                }
+
+                const data = await response.json();
+                setEmployee(data);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setError(err.message);
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, [id]);
+
+
+    // Mock Salary Data (Since backend Payroll model exists but might not be linked fully yet, 
+    // and storing complex structure in Employee model is different. 
+    // We can fetch payroll data separately if needed, but for now we keep mock salary 
+    // or map it if we added it to Employee model. 
+    // The previous schemas had a separate Payroll model.
+    // To limit scope creep, I will keep Salary hardcoded or default for now 
+    // unless I fetch from /api/payroll/employee/:id)
     const salary = {
-        monthlyWage: 50000,
-        yearlyWage: 600000,
+        monthlyWage: employee?.salary || 0,
+        yearlyWage: (employee?.salary || 0) * 12,
         workingDaysPerWeek: 5,
         breakTime: 1,
         components: {
-            basic: { amount: 25000, percentage: 50.00, description: 'Define Basic salary from company cost compute it based on monthly Wages' },
-            hra: { amount: 12500, percentage: 50.00, description: 'HRA provided to employees 50% of the basic salary' },
-            standardAllowance: { amount: 4167, percentage: 16.67, description: 'A standard allowance is a predetermined, fixed amount provided to employee as part of their salary' },
-            performanceBonus: { amount: 2082.50, percentage: 8.33, description: 'Variable amount paid during payroll. The value defined by the company and calculated as a % of the basic salary' },
-            lta: { amount: 2082.50, percentage: 8.33, description: 'LTA is paid by the company to employees to cover their travel expenses. and calculated as a % of the basic salary' },
-            fixedAllowance: { amount: 2918, percentage: 11.67, description: 'fixed allowance portion of wages is determined after calculating all salary components' }
+            basic: { amount: (employee?.salary || 0) * 0.5, percentage: 50.00, description: 'Basic salary component' },
+            hra: { amount: (employee?.salary || 0) * 0.25, percentage: 25.00, description: 'House Rent Allowance' },
+            standardAllowance: { amount: (employee?.salary || 0) * 0.1, percentage: 10.00, description: 'Standard Allowance' },
+            performanceBonus: { amount: (employee?.salary || 0) * 0.05, percentage: 5.00, description: 'Performance Bonus' },
+            lta: { amount: (employee?.salary || 0) * 0.05, percentage: 5.00, description: 'LTA' },
+            fixedAllowance: { amount: (employee?.salary || 0) * 0.05, percentage: 5.00, description: 'Fixed Allowance' }
         },
         pf: {
-            employee: { amount: 3000, percentage: 12.00, description: 'PF is calculated based on the basic salary' },
-            employer: { amount: 3000, percentage: 12.00, description: 'PF is calculated based on the basic salary' }
+            employee: { amount: (employee?.salary || 0) * 0.12, percentage: 12.00, description: 'PF Employee Share' },
+            employer: { amount: (employee?.salary || 0) * 0.12, percentage: 12.00, description: 'PF Employer Share' }
         },
         tax: {
-            professionalTax: { amount: 200, description: 'Professional Tax deducted from the Gross salary' }
+            professionalTax: { amount: 200, description: 'Professional Tax' }
         }
     };
+
+    if (loading) return <div className="p-8 text-center text-muted">Loading profile...</div>;
+    if (error || !employee) return <div className="p-8 text-center text-red-500">Error loading profile: {error}</div>;
 
     const renderTabContent = () => {
         switch (activeTab) {
@@ -51,13 +82,16 @@ const Profile = () => {
                         <div className="resume-section">
                             <div className="section-card">
                                 <h3 className="section-title">About</h3>
-                                <p className="section-description">{employee.about}</p>
+                                <p className="section-description">
+                                    {employee.bio || `Professional ${employee.designation} in the ${employee.department} department.`}
+                                </p>
                             </div>
 
                             <div className="section-card">
                                 <h3 className="section-title">Skills</h3>
                                 <div className="skills-container">
-                                    {employee.skills.map(skill => (
+                                    {/* Mock skills if not in DB, assuming DB doesn't have skills array yet */}
+                                    {(employee.skills || ['Hard Worker', 'Team Player', 'Punctual']).map(skill => (
                                         <span key={skill} className="skill-tag">{skill}</span>
                                     ))}
                                 </div>
@@ -66,20 +100,20 @@ const Profile = () => {
                             <div className="section-card">
                                 <h3 className="section-title">Professional Information</h3>
                                 <div className="info-grid">
-                                    <InfoItem 
-                                        label="Department" 
-                                        value={employee.dept} 
-                                        icon={<Briefcase size={18} />} 
+                                    <InfoItem
+                                        label="Department"
+                                        value={employee.department}
+                                        icon={<Briefcase size={18} />}
                                     />
-                                    <InfoItem 
-                                        label="Manager" 
-                                        value={employee.reportsTo} 
-                                        icon={<User size={18} />} 
+                                    <InfoItem
+                                        label="Designation"
+                                        value={employee.designation}
+                                        icon={<User size={18} />}
                                     />
-                                    <InfoItem 
-                                        label="Joined Date" 
-                                        value={employee.joinDate} 
-                                        icon={<Calendar size={18} />} 
+                                    <InfoItem
+                                        label="Joined Date"
+                                        value={new Date(employee.dateOfJoining).toLocaleDateString()}
+                                        icon={<Calendar size={18} />}
                                     />
                                 </div>
                             </div>
@@ -139,43 +173,43 @@ const Profile = () => {
                                 {/* Left Column - Salary Components */}
                                 <div className="salary-components-column">
                                     <h3 className="salary-column-title">Salary Components</h3>
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Basic Salary"
                                         amount={salary.components.basic.amount}
                                         percentage={salary.components.basic.percentage}
                                         description={salary.components.basic.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="House Rent Allowance (HRA)"
                                         amount={salary.components.hra.amount}
                                         percentage={salary.components.hra.percentage}
                                         description={salary.components.hra.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Standard Allowance"
                                         amount={salary.components.standardAllowance.amount}
                                         percentage={salary.components.standardAllowance.percentage}
                                         description={salary.components.standardAllowance.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Performance Bonus"
                                         amount={salary.components.performanceBonus.amount}
                                         percentage={salary.components.performanceBonus.percentage}
                                         description={salary.components.performanceBonus.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Leave Travel Allowance (LTA)"
                                         amount={salary.components.lta.amount}
                                         percentage={salary.components.lta.percentage}
                                         description={salary.components.lta.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Fixed Allowance"
                                         amount={salary.components.fixedAllowance.amount}
                                         percentage={salary.components.fixedAllowance.percentage}
@@ -186,15 +220,15 @@ const Profile = () => {
                                 {/* Right Column - Contributions and Deductions */}
                                 <div className="salary-contributions-column">
                                     <h3 className="salary-column-title">Provident Fund (PF) Contribution</h3>
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Employee"
                                         amount={salary.pf.employee.amount}
                                         percentage={salary.pf.employee.percentage}
                                         description={salary.pf.employee.description}
                                     />
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Employer"
                                         amount={salary.pf.employer.amount}
                                         percentage={salary.pf.employer.percentage}
@@ -204,8 +238,8 @@ const Profile = () => {
                                     <div className="salary-section-divider"></div>
 
                                     <h3 className="salary-column-title">Tax Deductions</h3>
-                                    
-                                    <SalaryComponent 
+
+                                    <SalaryComponent
                                         label="Professional Tax"
                                         amount={salary.tax.professionalTax.amount}
                                         description={salary.tax.professionalTax.description}
@@ -223,20 +257,20 @@ const Profile = () => {
                             <div className="section-card">
                                 <h3 className="section-title">Contact Information</h3>
                                 <div className="info-grid-private">
-                                    <InfoItem 
-                                        label="Email Address" 
-                                        value={employee.email} 
-                                        icon={<Mail size={18} />} 
+                                    <InfoItem
+                                        label="Email Address"
+                                        value={employee.email}
+                                        icon={<Mail size={18} />}
                                     />
-                                    <InfoItem 
-                                        label="Phone Number" 
-                                        value={employee.phone} 
-                                        icon={<Phone size={18} />} 
+                                    <InfoItem
+                                        label="Phone Number"
+                                        value={employee.phone}
+                                        icon={<Phone size={18} />}
                                     />
-                                    <InfoItem 
-                                        label="Address" 
-                                        value={employee.address} 
-                                        icon={<MapPin size={18} />} 
+                                    <InfoItem
+                                        label="Address"
+                                        value={employee.address}
+                                        icon={<MapPin size={18} />}
                                         fullWidth={true}
                                     />
                                 </div>
@@ -306,10 +340,10 @@ const Profile = () => {
                     </div>
                     <div className="header-actions">
                         <label className="admin-toggle">
-                            <input 
-                                type="checkbox" 
-                                checked={isAdmin} 
-                                onChange={e => setIsAdmin(e.target.checked)} 
+                            <input
+                                type="checkbox"
+                                checked={isAdmin}
+                                onChange={e => setIsAdmin(e.target.checked)}
                             />
                             <span>View as Admin</span>
                         </label>
@@ -317,33 +351,33 @@ const Profile = () => {
                 </div>
 
                 <div className="header-tabs">
-                    <TabButton 
-                        id="resume" 
-                        label="Resume" 
-                        icon={<FileText size={18} />} 
-                        active={activeTab} 
-                        onClick={setActiveTab} 
+                    <TabButton
+                        id="resume"
+                        label="Resume"
+                        icon={<FileText size={18} />}
+                        active={activeTab}
+                        onClick={setActiveTab}
                     />
-                    <TabButton 
-                        id="private" 
-                        label="Private Info" 
-                        icon={<Shield size={18} />} 
-                        active={activeTab} 
-                        onClick={setActiveTab} 
+                    <TabButton
+                        id="private"
+                        label="Private Info"
+                        icon={<Shield size={18} />}
+                        active={activeTab}
+                        onClick={setActiveTab}
                     />
-                    <TabButton 
-                        id="salary" 
-                        label="Salary Info" 
-                        icon={<DollarSign size={18} />} 
-                        active={activeTab} 
-                        onClick={setActiveTab} 
+                    <TabButton
+                        id="salary"
+                        label="Salary Info"
+                        icon={<DollarSign size={18} />}
+                        active={activeTab}
+                        onClick={setActiveTab}
                     />
-                    <TabButton 
-                        id="security" 
-                        label="Security" 
-                        icon={<Lock size={18} />} 
-                        active={activeTab} 
-                        onClick={setActiveTab} 
+                    <TabButton
+                        id="security"
+                        label="Security"
+                        icon={<Lock size={18} />}
+                        active={activeTab}
+                        onClick={setActiveTab}
                     />
                 </div>
             </div>
@@ -804,9 +838,9 @@ const Profile = () => {
 };
 
 const TabButton = ({ id, label, icon, active, onClick }) => (
-    <button 
+    <button
         type="button"
-        className={`tab-btn ${active === id ? 'active' : ''}`} 
+        className={`tab-btn ${active === id ? 'active' : ''}`}
         onClick={() => onClick(id)}
     >
         {icon} {label}

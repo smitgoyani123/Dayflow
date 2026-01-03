@@ -1,49 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Mail, Lock, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-    return (
-        <div className="auth-container">
-            <div className="auth-card card">
-                <div className="auth-header">
-                    <div className="logo-placeholder">
-                        <div className="logo-icon">D</div>
-                        <span className="logo-text">Dayflow</span>
-                    </div>
-                    <h1 className="text-xl">Sign In</h1>
-                    <p className="text-muted text-sm">Welcome back to your workspace</p>
-                </div>
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-                <form className="auth-form flex flex-col gap-4">
-                    <div className="form-group">
-                        <label className="text-sm text-secondary">Login ID or Email</label>
-                        <div className="input-wrapper">
-                            <User size={18} className="input-icon" />
-                            <input type="text" placeholder="Enter your ID or Email" className="input-field" />
-                        </div>
-                    </div>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    const res = await login(email, password);
+    if (res.success) {
+      navigate('/employees');
+    } else {
+      setError(res.message);
+    }
+  };
 
-                    <div className="form-group">
-                        <label className="text-sm text-secondary">Password</label>
-                        <div className="input-wrapper">
-                            <Lock size={18} className="input-icon" />
-                            <input type="password" placeholder="Enter your password" className="input-field" />
-                        </div>
-                    </div>
+  return (
+    <div className="auth-container">
+      <div className="auth-card card">
+        <div className="auth-header">
+          <div className="logo-placeholder">
+            <div className="logo-icon">D</div>
+            <span className="logo-text">Dayflow</span>
+          </div>
+          <h1 className="text-xl">Sign In</h1>
+          <p className="text-muted text-sm">Welcome back to your workspace</p>
+        </div>
 
-                    <button type="button" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>
-                        Sign In
-                    </button>
-                </form>
+        {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
 
-                <div className="auth-footer text-center text-sm">
-                    <p className="text-muted">
-                        Don't have an account? <a href="/signup" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>Sign Up</a>
-                    </p>
-                </div>
+        <form className="auth-form flex flex-col gap-4" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="text-sm text-secondary">Login ID or Email</label>
+            <div className="input-wrapper">
+              <User size={18} className="input-icon" />
+              <input
+                type="text"
+                placeholder="Enter your ID or Email"
+                className="input-field"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
+          </div>
 
-            <style>{`
+          <div className="form-group">
+            <label className="text-sm text-secondary">Password</label>
+            <div className="input-wrapper">
+              <Lock size={18} className="input-icon" />
+              <input
+                type="password"
+                placeholder="Enter your password"
+                className="input-field"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>
+            Sign In
+          </button>
+        </form>
+
+        <div className="auth-footer text-center text-sm">
+          <p className="text-muted">
+            Don't have an account? <a href="/signup" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>Sign Up</a>
+          </p>
+        </div>
+      </div>
+
+      <style>{`
         .auth-container {
           min-height: 100vh;
           display: flex;
@@ -117,8 +150,8 @@ const Login = () => {
         }
         .text-center { text-align: center; }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 };
 
 export default Login;

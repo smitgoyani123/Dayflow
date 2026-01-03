@@ -1,19 +1,120 @@
-import React from 'react';
-import { Search, Plane, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Plane, Plus, Loader, X, Save } from 'lucide-react'; // Added X and Save icons
 import { Link } from 'react-router-dom';
 
 const Employees = () => {
-    // Mock Data
-    const employees = [
-        { id: 1, name: 'Alex Johnson', role: 'Software Engineer', dept: 'Engineering', status: 'present', image: 'https://i.pravatar.cc/150?u=1' },
-        { id: 2, name: 'Sarah Wilson', role: 'Product Designer', dept: 'Design', status: 'leave', image: 'https://i.pravatar.cc/150?u=2' },
-        { id: 3, name: 'Michael Chen', role: 'Product Manager', dept: 'Product', status: 'present', image: 'https://i.pravatar.cc/150?u=3' },
-        { id: 4, name: 'Emily Davis', role: 'HR Manager', dept: 'Human Resources', status: 'absent', image: 'https://i.pravatar.cc/150?u=4' },
-        { id: 5, name: 'David Kim', role: 'Frontend Dev', dept: 'Engineering', status: 'present', image: 'https://i.pravatar.cc/150?u=5' },
-        { id: 6, name: 'Lisa Pat', role: 'Marketing', dept: 'Growth', status: 'present', image: 'https://i.pravatar.cc/150?u=6' },
-    ];
+    const [employees, setEmployees] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newEmployee, setNewEmployee] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        designation: '',
+        department: '',
+        salary: '',
+        dateOfJoining: '',
+        address: '',
+        phoneNumber: ''
+    });
+    const [modalError, setModalError] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        fetchEmployees();
+    }, []);
+
+    const fetchEmployees = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('/api/employees', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch employees');
+            }
+
+            const data = await response.json();
+            setEmployees(data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewEmployee({ ...newEmployee, [name]: value });
+    };
+
+    const handleSaveEmployee = async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        setModalError('');
+
+        // Basic Frontend Validation
+        if (!newEmployee.firstName || !newEmployee.lastName || !newEmployee.email || !newEmployee.salary) {
+            setModalError('Please fill in all required fields.');
+            setSaving(false);
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('You must be logged in to perform this action.');
+            }
+
+            // Ensure salary is a number
+            const payload = {
+                ...newEmployee,
+                salary: Number(newEmployee.salary)
+            };
+
+            const response = await fetch('/api/employees', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to create employee');
+            }
+
+            // Success
+            setEmployees([...employees, data]);
+            setIsModalOpen(false);
+            setNewEmployee({
+                firstName: '', lastName: '', email: '', designation: '',
+                department: '', salary: '', dateOfJoining: '', address: '', phoneNumber: ''
+            });
+
+        } catch (err) {
+            console.error("Save Employee Error:", err);
+            setModalError(err.message);
+        } finally {
+            setSaving(false);
+        }
+    };
 
     const getStatusIcon = (status) => {
+        // ... (Status logic remains, maybe mapped to backend status if different)
+        // Assuming backend status maps to 'present', 'leave', 'absent'
+        // If undefined, default to neutral
+        status = status?.toLowerCase() || 'absent';
         switch (status) {
             case 'present': return (
                 <div className="status-dot-container green" title="Present">
@@ -25,55 +126,143 @@ const Employees = () => {
                     <Plane size={14} className="plane-icon" />
                 </div>
             );
-            case 'absent': return (
-                <div className="status-dot-container yellow" title="Absent">
+            default: return (
+                <div className="status-dot-container yellow" title={status}>
                     <div className="status-dot yellow-fill" />
                 </div>
             );
-            default: return null;
         }
     };
+
+    const filteredEmployees = employees.filter(emp =>
+        emp.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.designation?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (loading) return <div className="p-8 text-center text-muted">Loading employees...</div>;
+    // if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
     return (
         <div className="page-container flex flex-col gap-6">
 
             {/* Toolbar: NEW Button + Search */}
             <div className="toolbar-header">
-                <button className="btn-new">
+                <button className="btn-new" onClick={() => setIsModalOpen(true)}>
                     <Plus size={18} />
                     <span>Add New Employee</span>
                 </button>
 
                 <div className="search-wrapper">
-                    <input type="text" placeholder="Search" className="search-input" />
+                    <input
+                        type="text"
+                        placeholder="Search"
+                        className="search-input"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                     <Search size={16} className="search-icon" />
                 </div>
             </div>
 
             {/* Employee Grid */}
             <div className="employee-grid">
-                {employees.map((emp) => (
-                    <Link to={`/profile/${emp.id}`} key={emp.id} className="card employee-card">
+                {filteredEmployees.map((emp) => (
+                    <Link to={`/profile/${emp._id}`} key={emp._id} className="card employee-card">
 
                         {/* Left Box: Avatar */}
                         <div className="card-avatar">
-                            <img src={emp.image} alt={emp.name} />
+                            <img src={emp.profilePicture || `https://ui-avatars.com/api/?name=${emp.firstName}+${emp.lastName}`} alt={emp.firstName} />
                         </div>
 
                         {/* Middle Box: Info */}
                         <div className="card-info">
-                            <div className="emp-name">{emp.name}</div>
-                            <div className="emp-role">{emp.role}</div>
+                            <div className="emp-name">{emp.firstName} {emp.lastName}</div>
+                            <div className="emp-role">{emp.designation}</div>
                         </div>
 
                         {/* Right Box: Status (Absolute top-right to match spec "Top-right corner") */}
                         <div className="card-status">
-                            {getStatusIcon(emp.status)}
+                            {getStatusIcon('present')} {/* Mocking status for now as it's not in Employee model directly */}
                         </div>
 
                     </Link>
                 ))}
             </div>
+
+            {/* ADD EMPLOYEE MODAL */}
+            {isModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content card">
+                        <div className="modal-header">
+                            <h2 className="text-xl font-bold">Add New Employee</h2>
+                            <button className="icon-btn" onClick={() => setIsModalOpen(false)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {modalError && <div className="p-3 mb-4 text-sm text-red-600 bg-red-50 rounded">{modalError}</div>}
+
+                        <form onSubmit={handleSaveEmployee} className="modal-form">
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>First Name</label>
+                                    <input type="text" name="firstName" required className="input-field" onChange={handleInputChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Last Name</label>
+                                    <input type="text" name="lastName" required className="input-field" onChange={handleInputChange} />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" required className="input-field" onChange={handleInputChange} />
+                                <span className="text-xs text-muted">Must match a registered user email (or implement auto-invite)</span>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Designation</label>
+                                    <input type="text" name="designation" required className="input-field" onChange={handleInputChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Department</label>
+                                    <input type="text" name="department" required className="input-field" onChange={handleInputChange} />
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Date of Joining</label>
+                                    <input type="date" name="dateOfJoining" required className="input-field" onChange={handleInputChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Salary (Monthly)</label>
+                                    <input type="number" name="salary" required className="input-field" onChange={handleInputChange} />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Address</label>
+                                <input type="text" name="address" required className="input-field" onChange={handleInputChange} />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" name="phoneNumber" required className="input-field" onChange={handleInputChange} />
+                            </div>
+
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                                <button type="submit" className="btn btn-primary" disabled={saving}>
+                                    {saving ? 'Saving...' : 'Save Employee'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <style>{`
         .page-container { width: 100%; }
@@ -221,6 +410,51 @@ const Employees = () => {
         .status-dot.yellow-fill { background-color: #ca8a04; }
         /* Tilted plane icon - Default is already tilted Top-Right */
         .plane-icon { color: #2563eb; display:block; }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-content {
+            width: 100%; max-width: 600px;
+            max-height: 90vh; overflow-y: auto;
+            background: white; border-radius: 16px; padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px;
+        }
+        .icon-btn {
+            background: none; border: none; cursor: pointer; color: var(--color-text-muted); padding: 4px;
+            border-radius: 50%; transition: background 0.2s;
+        }
+        .icon-btn:hover { background: #f1f5f9; color: var(--color-text-main); }
+        
+        .modal-form { display: flex; flex-direction: column; gap: 16px; }
+        .form-row { display: flex; gap: 16px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .form-group label {
+            font-size: 0.85rem; font-weight: 500; color: var(--color-text-secondary);
+        }
+        .input-field {
+            padding: 10px 12px; border: 1px solid var(--color-border);
+            border-radius: 8px; font-size: 0.95rem; outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus { border-color: var(--color-primary); }
+        
+        .modal-footer {
+            display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;
+        }
+        .btn-outline {
+            background: none; border: 1px solid var(--color-border);
+            padding: 8px 16px; border-radius: 8px; cursor: pointer;
+            font-weight: 500; color: var(--color-text-secondary);
+        }
+        .btn-outline:hover { background: #f8fafc; }
 
       `}</style>
         </div>
