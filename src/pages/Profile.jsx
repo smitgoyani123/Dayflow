@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User } from 'lucide-react';
+import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User, Edit2, Plus, X, Check } from 'lucide-react';
 
 const Profile = () => {
     const { id } = useParams();
@@ -8,7 +8,7 @@ const Profile = () => {
     const [isAdmin, setIsAdmin] = useState(true); // Toggle for demo
 
     // Mock Employee Data
-    const employee = {
+    const [employee, setEmployee] = useState({
         name: 'Alex Johnson',
         role: 'Software Engineer',
         dept: 'Engineering',
@@ -17,8 +17,25 @@ const Profile = () => {
         phone: '+1 (555) 123-4567',
         reportsTo: 'Michael Chen',
         skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'PostgreSQL'],
+        certifications: ['AWS Certified Solutions Architect', 'Meta Frontend Developer'],
         about: 'Passionate developer with 5+ years of experience in building scalable web applications. Specialized in modern JavaScript frameworks and cloud infrastructure.',
+        jobLove: 'I thrive on solving complex architectural challenges and seeing code come to life. The collaborative environment and focus on innovation here make every day exciting.',
+        hobbies: 'Photography, Hiking, Playing Guitar, Reading Sci-Fi novels',
         address: '123 Tech Park, San Francisco, CA 94105',
+    });
+
+    const handleUpdate = (field, value) => {
+        setEmployee(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleAddList = (field, item) => {
+        if (item && !employee[field].includes(item)) {
+            setEmployee(prev => ({ ...prev, [field]: [...prev[field], item] }));
+        }
+    };
+
+    const handleRemoveList = (field, item) => {
+        setEmployee(prev => ({ ...prev, [field]: prev[field].filter(i => i !== item) }));
     };
 
     const salary = {
@@ -48,40 +65,59 @@ const Profile = () => {
             case 'resume':
                 return (
                     <div className="tab-content">
-                        <div className="resume-section">
-                            <div className="section-card">
-                                <h3 className="section-title">About</h3>
-                                <p className="section-description">{employee.about}</p>
-                            </div>
+                        <div className="resume-grid">
+                            <div className="resume-left">
+                                <EditableSection 
+                                    title="About" 
+                                    content={employee.about} 
+                                    onSave={(val) => handleUpdate('about', val)}
+                                />
+                                <EditableSection 
+                                    title="What I love about my job" 
+                                    content={employee.jobLove} 
+                                    onSave={(val) => handleUpdate('jobLove', val)}
+                                />
+                                <EditableSection 
+                                    title="My interests and hobbies" 
+                                    content={employee.hobbies} 
+                                    onSave={(val) => handleUpdate('hobbies', val)}
+                                />
 
-                            <div className="section-card">
-                                <h3 className="section-title">Skills</h3>
-                                <div className="skills-container">
-                                    {employee.skills.map(skill => (
-                                        <span key={skill} className="skill-tag">{skill}</span>
-                                    ))}
+                                <div className="section-card">
+                                    <h3 className="section-title">Professional Information</h3>
+                                    <div className="info-grid">
+                                        <InfoItem 
+                                            label="Department" 
+                                            value={employee.dept} 
+                                            icon={<Briefcase size={18} />} 
+                                        />
+                                        <InfoItem 
+                                            label="Manager" 
+                                            value={employee.reportsTo} 
+                                            icon={<User size={18} />} 
+                                        />
+                                        <InfoItem 
+                                            label="Joined Date" 
+                                            value={employee.joinDate} 
+                                            icon={<Calendar size={18} />} 
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="section-card">
-                                <h3 className="section-title">Professional Information</h3>
-                                <div className="info-grid">
-                                    <InfoItem 
-                                        label="Department" 
-                                        value={employee.dept} 
-                                        icon={<Briefcase size={18} />} 
-                                    />
-                                    <InfoItem 
-                                        label="Manager" 
-                                        value={employee.reportsTo} 
-                                        icon={<User size={18} />} 
-                                    />
-                                    <InfoItem 
-                                        label="Joined Date" 
-                                        value={employee.joinDate} 
-                                        icon={<Calendar size={18} />} 
-                                    />
-                                </div>
+                            <div className="resume-right">
+                                <ListSection 
+                                    title="Skills" 
+                                    items={employee.skills} 
+                                    onAdd={(item) => handleAddList('skills', item)}
+                                    onRemove={(item) => handleRemoveList('skills', item)}
+                                />
+                                <ListSection 
+                                    title="Certification" 
+                                    items={employee.certifications} 
+                                    onAdd={(item) => handleAddList('certifications', item)}
+                                    onRemove={(item) => handleRemoveList('certifications', item)}
+                                />
                             </div>
                         </div>
                     </div>
@@ -509,14 +545,162 @@ const Profile = () => {
                     margin: 0 0 24px 0;
                 }
 
-                /* Resume Section */
-                .resume-section {
+                /* Resume Grid Layout */
+                .resume-grid {
+                    display: grid;
+                    grid-template-columns: 3fr 2fr;
+                    gap: 24px;
+                }
+                .resume-left {
                     display: flex;
                     flex-direction: column;
-                    gap: 5px;
+                    gap: 24px;
+                }
+                .resume-right {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                }
+                
+                /* Editable Section */
+                .section-header-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+                .section-title {
+                    margin-bottom: 0;
+                }
+                .edit-btn {
+                    background: none;
+                    border: none;
+                    color: var(--color-text-muted);
+                    cursor: pointer;
+                    padding: 8px;
+                    border-radius: 50%;
+                    transition: all 0.2s;
+                }
+                .edit-btn:hover {
+                    color: var(--color-primary);
+                    background-color: var(--color-surface-hover);
+                }
+                
+                .edit-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+                .edit-textarea {
+                    width: 100%;
+                    min-height: 120px;
+                    padding: 12px;
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-md);
+                    font-family: inherit;
+                    font-size: 0.95rem;
+                    resize: vertical;
+                }
+                .edit-actions {
+                    display: flex;
+                    gap: 12px;
+                    justify-content: flex-end;
+                }
+                .btn-save {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 8px 16px;
+                    background-color: var(--color-primary);
+                    color: white;
+                    border: none;
+                    border-radius: var(--radius-md);
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                }
+                .btn-cancel {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 8px 16px;
+                    background-color: transparent;
+                    border: 1px solid var(--color-border);
+                    color: var(--color-text-secondary);
+                    border-radius: var(--radius-md);
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    cursor: pointer;
                 }
 
-                /* Skills */
+                /* Add Item Form */
+                .add-item-form {
+                    margin-top: 16px;
+                    display: flex;
+                    gap: 8px;
+                }
+                .add-input {
+                    flex: 1;
+                    padding: 8px 12px;
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-md);
+                    font-size: 0.9rem;
+                }
+                .add-btn-submit {
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: var(--color-primary);
+                    color: white;
+                    border: none;
+                    border-radius: var(--radius-md);
+                    cursor: pointer;
+                }
+                .add-trigger-btn {
+                    margin-top: 16px;
+                    background: none;
+                    border: none;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    color: var(--color-primary);
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                    padding: 8px 0;
+                }
+                .add-trigger-btn:hover {
+                    text-decoration: underline;
+                }
+                
+                .skill-tag {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding-right: 8px; /* Extra padding for X icon */
+                }
+                .remove-skill-btn {
+                    background: none;
+                    border: none;
+                    color: currentColor;
+                    opacity: 0.6;
+                    cursor: pointer;
+                    padding: 0;
+                    display: flex;
+                    align-items: center;
+                }
+                .remove-skill-btn:hover {
+                    opacity: 1;
+                }
+
+                /* Responsive grid */
+                @media (max-width: 900px) {
+                    .resume-grid {
+                        grid-template-columns: 1fr;
+                    }
+                }
                 .skills-container {
                     display: flex;
                     flex-wrap: wrap;
@@ -840,5 +1024,105 @@ const SalaryComponent = ({ label, amount, percentage, description }) => (
         <div className="salary-component-description">{description}</div>
     </div>
 );
+
+const EditableSection = ({ title, content, onSave }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempContent, setTempContent] = useState(content);
+
+    const handleSave = () => {
+        onSave(tempContent);
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setTempContent(content);
+        setIsEditing(false);
+    };
+
+    return (
+        <div className="section-card">
+            <div className="section-header-row">
+                <h3 className="section-title">{title}</h3>
+                {!isEditing && (
+                    <button className="edit-btn" onClick={() => setIsEditing(true)}>
+                        <Edit2 size={16} />
+                    </button>
+                )}
+            </div>
+            
+            {isEditing ? (
+                <div className="edit-form">
+                    <textarea 
+                        className="edit-textarea"
+                        value={tempContent}
+                        onChange={(e) => setTempContent(e.target.value)}
+                    />
+                    <div className="edit-actions">
+                        <button className="btn-cancel" onClick={handleCancel}>
+                            <X size={16} /> Cancel
+                        </button>
+                        <button className="btn-save" onClick={handleSave}>
+                            <Check size={16} /> Save
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <p className="section-description">{content}</p>
+            )}
+        </div>
+    );
+};
+
+const ListSection = ({ title, items, onAdd, onRemove }) => {
+    const [isAdding, setIsAdding] = useState(false);
+    const [newItem, setNewItem] = useState('');
+
+    const handleAdd = () => {
+        if (newItem.trim()) {
+            onAdd(newItem.trim());
+            setNewItem('');
+            setIsAdding(false);
+        }
+    };
+
+    return (
+        <div className="section-card">
+            <h3 className="section-title">{title}</h3>
+            <div className="skills-container">
+                {items.map(item => (
+                    <span key={item} className="skill-tag">
+                        {item}
+                        <button className="remove-skill-btn" onClick={() => onRemove(item)}>
+                            <X size={12} />
+                        </button>
+                    </span>
+                ))}
+            </div>
+            
+            {isAdding ? (
+                <div className="add-item-form">
+                    <input 
+                        className="add-input"
+                        value={newItem}
+                        onChange={(e) => setNewItem(e.target.value)}
+                        placeholder={`Add ${title}...`}
+                        autoFocus
+                        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                    />
+                    <button className="add-btn-submit" onClick={handleAdd}>
+                        <Check size={16} />
+                    </button>
+                    <button className="add-btn-submit" style={{backgroundColor: '#ef4444'}} onClick={() => setIsAdding(false)}>
+                        <X size={16} />
+                    </button>
+                </div>
+            ) : (
+                <button className="add-trigger-btn" onClick={() => setIsAdding(true)}>
+                    <Plus size={16} /> Add {title}
+                </button>
+            )}
+        </div>
+    );
+};
 
 export default Profile;
