@@ -276,40 +276,40 @@ const Profile = () => {
                                 <div className="section-card">
                                     <h3 className="section-title">Personal Information</h3>
                                     <div className="info-grid-private-col">
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Date of Birth"
                                             value={employee.dob}
-                                            icon={<Calendar size={18} />}
+                                            icon={<Calendar size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Residing Address"
                                             value={employee.address}
-                                            icon={<MapPin size={18} />}
+                                            icon={<MapPin size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Nationality"
                                             value={employee.nationality}
-                                            icon={<Flag size={18} />}
+                                            icon={<Flag size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Personal Email"
                                             value={employee.email}
-                                            icon={<Mail size={18} />}
+                                            icon={<Mail size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Gender"
                                             value={employee.gender}
-                                            icon={<User size={18} />}
+                                            icon={<User size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Marital Status"
                                             value={employee.maritalStatus}
-                                            icon={<Users size={18} />}
+                                            icon={<Users size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Date of Joining"
                                             value={employee.joinDate}
-                                            icon={<Calendar size={18} />}
+                                            icon={<Calendar size={20} strokeWidth={1.5} />}
                                         />
                                     </div>
                                 </div>
@@ -318,35 +318,35 @@ const Profile = () => {
                                 <div className="section-card">
                                     <h3 className="section-title">Bank Details</h3>
                                     <div className="info-grid-private-col">
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Account Number"
                                             value={employee.bankDetails.accountNo}
-                                            icon={<CreditCard size={18} />}
+                                            icon={<CreditCard size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Bank Name"
                                             value={employee.bankDetails.bankName}
-                                            icon={<Building size={18} />}
+                                            icon={<Building size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="IFSC Code"
                                             value={employee.bankDetails.ifsc}
-                                            icon={<Hash size={18} />}
+                                            icon={<Hash size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="PAN No"
                                             value={employee.bankDetails.pan}
-                                            icon={<FileText size={18} />}
+                                            icon={<FileText size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="UAN NO"
                                             value={employee.bankDetails.uan}
-                                            icon={<FileText size={18} />}
+                                            icon={<FileText size={20} strokeWidth={1.5} />}
                                         />
-                                        <InfoItem
+                                        <DataFieldCard
                                             label="Emp Code"
                                             value={employee.bankDetails.empCode}
-                                            icon={<Briefcase size={18} />}
+                                            icon={<Briefcase size={20} strokeWidth={1.5} />}
                                         />
                                     </div>
                                 </div>
@@ -794,60 +794,80 @@ const Profile = () => {
                         grid-template-columns: 1fr;
                     }
                 }
-                .info-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                    gap: 24px;
-                }
-                .info-grid-private-col {
+                .private-info-grid-container {
                     display: flex;
                     flex-direction: column;
+                    gap: 32px;
+                }
+
+                /* Container Card for each section */
+                .section-card {
+                    background: #ffffff;
+                    border-radius: 24px;
+                    padding: 32px;
+                    box-shadow: 
+                        0 4px 6px -1px rgba(0, 0, 0, 0.02),
+                        0 12px 32px -4px rgba(0, 0, 0, 0.08); /* Premium Shadow */
+                    border: 1px solid rgba(226, 232, 240, 0.8);
+                }
+
+                .info-grid-private-col {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
                     gap: 20px;
                 }
-                .info-item {
-                    display: flex;
-                    gap: 16px;
-                    background: var(--color-background);
-                    padding: 16px;
-                    border-radius: var(--radius-md);
-                    border: 1px solid transparent;
-                    transition: all 0.2s;
-                }
-                .info-item:hover {
-                    border-color: var(--color-border);
-                    background: #fdfdfd;
-                }
-                .info-item.full-width {
-                    grid-column: 1 / -1;
-                }
-                .info-icon {
-                    width: 40px;
-                    height: 40px;
+
+                /* Individual Data Field Card */
+                .data-field-card {
                     display: flex;
                     align-items: center;
-                    justify-content: center;
-                    background: rgba(37, 99, 235, 0.1);
+                    gap: 16px;
+                    padding: 16px 20px;
+                    background: #f8fafc; /* Subtle background for fields */
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    transition: all 0.2s ease;
+                }
+                .data-field-card:hover {
+                    background: #ffffff;
+                    border-color: var(--color-primary);
+                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+                    transform: translateY(-2px);
+                }
+
+                /* Icon Box */
+                .field-icon-box {
+                    width: 48px; height: 48px;
+                    display: flex; align-items: center; justify-content: center;
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
                     color: var(--color-primary);
-                    border-radius: 50%;
                     flex-shrink: 0;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
                 }
-                .info-content {
-                    flex: 1;
-                    min-width: 0;
+                .data-field-card:hover .field-icon-box {
+                    background: var(--color-primary);
+                    color: #ffffff;
+                    border-color: var(--color-primary);
                 }
-                .info-label {
-                    display: block;
-                    font-size: 0.85rem;
-                    color: var(--color-text-muted);
-                    margin-bottom: 4px;
-                    font-weight: 500;
+
+                .field-content {
+                    flex: 1; min-width: 0;
+                }
+                .field-label {
+                    font-size: 0.75rem;
                     text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.05em;
+                    color: #64748b;
+                    font-weight: 600;
+                    margin-bottom: 4px;
                 }
-                .info-value {
-                    font-size: 1rem;
-                    color: var(--color-text-main);
-                    font-weight: 500;
+                .field-value {
+                    font-size: 0.95rem;
+                    color: #0f172a;
+                    font-weight: 600;
+                    line-height: 1.4;
                     word-break: break-word;
                 }
 
@@ -1085,6 +1105,16 @@ const TabButton = ({ id, label, icon, active, onClick }) => (
     >
         {icon} {label}
     </button>
+);
+
+const DataFieldCard = ({ label, value, icon }) => (
+    <div className="data-field-card">
+        <div className="field-icon-box">{icon}</div>
+        <div className="field-content">
+            <span className="field-label">{label}</span>
+            <div className="field-value">{value}</div>
+        </div>
+    </div>
 );
 
 const InfoItem = ({ label, value, icon, fullWidth }) => (
