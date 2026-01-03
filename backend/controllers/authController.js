@@ -52,7 +52,7 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { email, password, fullName, companyName, phone, address } = req.body;
+    const { email, password, role, fullName, companyName, phone, companyLogo } = req.body;
 
     const userExists = await User.findOne({ email });
 
@@ -120,8 +120,9 @@ const registerUser = asyncHandler(async (req, res) => {
             salary: 0,
             address: address || 'Please update address',
             phoneNumber: phone || '0000000000',
-            employeeCode: empCode,
-            profilePicture: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=random`
+            employeeCode: empCode, // Save the generated code
+            profilePicture: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=random`,
+            companyLogo: companyLogo || '' // Save Company Logo
         });
 
         user.employeeId = newEmployee._id;
@@ -133,6 +134,7 @@ const registerUser = asyncHandler(async (req, res) => {
             role: user.role,
             companyId: user.companyId,
             employeeId: user.employeeId,
+            employeeDetails: newEmployee, // Return full object for consistency with login
             token: generateToken(user._id),
         });
     } else {

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { User, Clock, Check, Loader2, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
+  const { user } = useAuth();
   const [checkInTime, setCheckInTime] = useState(null);
 
   useEffect(() => {
@@ -21,7 +23,11 @@ const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
         <div className="nav-left">
           {/* Logo */}
           <div className="nav-logo">
-            <img src="/dayflow-logo.png" alt="DayFlow Logo" className="logo-img" />
+            <img
+              src={user?.employeeDetails?.companyLogo || "/dayflow-logo.png"}
+              alt="Logo"
+              className={`logo-img ${user?.employeeDetails?.companyLogo ? 'company-logo-main' : ''}`}
+            />
             <span className="logo-text">DayFlow</span>
           </div>
 
@@ -91,7 +97,13 @@ const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
         .logo-img {
           width: 32px; height: 32px; object-fit: contain;
         }
-        .logo-text { font-weight: 600; font-size: 1.05rem; color: #475569; letter-spacing: -0.01em; } /* More subtle text */
+        .logo-text { 
+           font-family: 'Outfit', sans-serif; /* accessible if imported in index.html, else falls back */
+           font-weight: 700; 
+           font-size: 1.25rem; 
+           color: #0f172a; 
+           letter-spacing: -0.03em; 
+        } /* Premium, darker, tighter */
 
         .nav-divider { 
           width: 1px; height: 20px; background-color: #e2e8f0; 
@@ -162,6 +174,11 @@ const TopNav = ({ status = 'offline', onToggleCheckIn }) => {
         .dropdown-sep { height: 1px; background-color: #e2e8f0; margin: 4px 0; }
         .text-red { color: #ef4444; }
         .text-red:hover { background-color: #fef2f2; color: #dc2626; }
+
+        .company-logo-main {
+            height: 32px; width: auto !important; max-width: 140px;
+            object-fit: contain;
+        }
 
       `}</style>
     </nav>

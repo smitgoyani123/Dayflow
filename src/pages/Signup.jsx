@@ -10,7 +10,8 @@ const Signup = () => {
     email: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    companyLogo: '' // Base64 string
   });
   const [error, setError] = useState('');
   const { register } = useAuth();
@@ -18,6 +19,17 @@ const Signup = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, companyLogo: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -37,7 +49,8 @@ const Signup = () => {
       role: 'Admin',
       fullName: formData.fullName,
       companyName: formData.companyName,
-      phone: formData.phone
+      phone: formData.phone,
+      companyLogo: formData.companyLogo
     });
 
     if (res.success) {
@@ -78,6 +91,23 @@ const Signup = () => {
                   value={formData.companyName}
                   onChange={handleChange}
                 />
+              </div>
+            </div>
+
+            {/* Logo Upload */}
+            <div className="form-group full-width" style={{ marginTop: '12px' }}>
+              <label className="input-label">Company Logo</label>
+              <div className="logo-upload-wrapper">
+                <label className="upload-btn">
+                  <Upload size={18} />
+                  <span>{formData.companyLogo ? 'Logo Uploaded' : 'Upload Logo'}</span>
+                  <input type="file" accept="image/*" hidden onChange={handleLogoChange} />
+                </label>
+                {formData.companyLogo && (
+                  <div className="logo-preview">
+                    <img src={formData.companyLogo} alt="Preview" />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -181,7 +211,7 @@ const Signup = () => {
             Already have an account? <Link to="/login" className="link-text">Sign In</Link>
           </p>
         </div>
-      </div>
+      </div >
 
       <style>{`
         .auth-container {
@@ -319,8 +349,26 @@ const Signup = () => {
             .auth-card { padding: 24px; }
         }
 
+        .logo-upload-wrapper {
+            display: flex; align-items: center; gap: 16px;
+        }
+        .upload-btn {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 16px;
+            background: #f8fafc; border: 1px dashed #cbd5e1;
+            border-radius: 10px; color: #64748b; font-size: 0.9rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .upload-btn:hover { border-color: var(--color-primary); color: var(--color-primary); background: #eff6ff; }
+        .logo-preview {
+            width: 40px; height: 40px; border-radius: 8px; overflow: hidden;
+            border: 1px solid #e2e8f0; bg: white;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-preview img { width: 100%; height: 100%; object-fit: contain; }
+
       `}</style>
-    </div>
+    </div >
   );
 };
 
