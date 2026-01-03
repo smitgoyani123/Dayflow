@@ -22,13 +22,24 @@ const Profile = () => {
     };
 
     const salary = {
-        basic: 5000,
-        hra: 2000,
-        allowance: 1000,
-        bonus: 500,
-        deductions: {
-            pf: 250,
-            tax: 150
+        monthlyWage: 50000,
+        yearlyWage: 600000,
+        workingDaysPerWeek: 5,
+        breakTime: 1,
+        components: {
+            basic: { amount: 25000, percentage: 50.00, description: 'Define Basic salary from company cost compute it based on monthly Wages' },
+            hra: { amount: 12500, percentage: 50.00, description: 'HRA provided to employees 50% of the basic salary' },
+            standardAllowance: { amount: 4167, percentage: 16.67, description: 'A standard allowance is a predetermined, fixed amount provided to employee as part of their salary' },
+            performanceBonus: { amount: 2082.50, percentage: 8.33, description: 'Variable amount paid during payroll. The value defined by the company and calculated as a % of the basic salary' },
+            lta: { amount: 2082.50, percentage: 8.33, description: 'LTA is paid by the company to employees to cover their travel expenses. and calculated as a % of the basic salary' },
+            fixedAllowance: { amount: 2918, percentage: 11.67, description: 'fixed allowance portion of wages is determined after calculating all salary components' }
+        },
+        pf: {
+            employee: { amount: 3000, percentage: 12.00, description: 'PF is calculated based on the basic salary' },
+            employer: { amount: 3000, percentage: 12.00, description: 'PF is calculated based on the basic salary' }
+        },
+        tax: {
+            professionalTax: { amount: 200, description: 'Professional Tax deducted from the Gross salary' }
         }
     };
 
@@ -87,56 +98,118 @@ const Profile = () => {
                     );
                 }
 
-                const totalEarnings = salary.basic + salary.hra + salary.allowance + salary.bonus;
-                const totalDeductions = salary.deductions.pf + salary.deductions.tax;
-                const netSalary = totalEarnings - totalDeductions;
+                const totalComponents = Object.values(salary.components).reduce((sum, comp) => sum + comp.amount, 0);
 
                 return (
                     <div className="tab-content">
                         <div className="salary-section">
-                            <div className="salary-summary-card">
-                                <div className="salary-summary-content">
-                                    <div className="salary-summary-info">
-                                        <p className="salary-label">Net Monthly Salary</p>
-                                        <h2 className="salary-amount">${netSalary.toLocaleString()}</h2>
-                                        <p className="salary-period">Current Financial Year 2024-2025</p>
+                            {/* Top Section - Wage Information */}
+                            <div className="salary-wage-info">
+                                <div className="wage-field">
+                                    <label className="wage-label">Month Wage</label>
+                                    <div className="wage-value">
+                                        <span className="wage-amount">{salary.monthlyWage.toLocaleString()}</span>
+                                        <span className="wage-unit">/ Month</span>
+                                    </div>
+                                </div>
+                                <div className="wage-field">
+                                    <label className="wage-label">Yearly wage</label>
+                                    <div className="wage-value">
+                                        <span className="wage-amount">{salary.yearlyWage.toLocaleString()}</span>
+                                        <span className="wage-unit">/ Yearly</span>
+                                    </div>
+                                </div>
+                                <div className="wage-field">
+                                    <label className="wage-label">No of working days in a week</label>
+                                    <div className="wage-value">
+                                        <span className="wage-amount">{salary.workingDaysPerWeek}</span>
+                                    </div>
+                                </div>
+                                <div className="wage-field">
+                                    <label className="wage-label">Break Time</label>
+                                    <div className="wage-value">
+                                        <span className="wage-amount">{salary.breakTime}</span>
+                                        <span className="wage-unit">/hrs</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="salary-breakdown">
-                                <div className="breakdown-card earnings-card">
-                                    <div className="breakdown-header">
-                                        <h4 className="breakdown-title earnings-title">Earnings</h4>
-                                    </div>
-                                    <div className="breakdown-content">
-                                        <BreakdownRow label="Basic Salary" value={`$${salary.basic.toLocaleString()}`} />
-                                        <BreakdownRow label="HRA" value={`$${salary.hra.toLocaleString()}`} />
-                                        <BreakdownRow label="Special Allowance" value={`$${salary.allowance.toLocaleString()}`} />
-                                        <BreakdownRow label="Bonus" value={`$${salary.bonus.toLocaleString()}`} />
-                                        <div className="breakdown-divider"></div>
-                                        <BreakdownRow 
-                                            label="Total Earnings" 
-                                            value={`$${totalEarnings.toLocaleString()}`} 
-                                            isTotal={true}
-                                        />
-                                    </div>
+                            {/* Two Column Layout */}
+                            <div className="salary-details-grid">
+                                {/* Left Column - Salary Components */}
+                                <div className="salary-components-column">
+                                    <h3 className="salary-column-title">Salary Components</h3>
+                                    
+                                    <SalaryComponent 
+                                        label="Basic Salary"
+                                        amount={salary.components.basic.amount}
+                                        percentage={salary.components.basic.percentage}
+                                        description={salary.components.basic.description}
+                                    />
+                                    
+                                    <SalaryComponent 
+                                        label="House Rent Allowance (HRA)"
+                                        amount={salary.components.hra.amount}
+                                        percentage={salary.components.hra.percentage}
+                                        description={salary.components.hra.description}
+                                    />
+                                    
+                                    <SalaryComponent 
+                                        label="Standard Allowance"
+                                        amount={salary.components.standardAllowance.amount}
+                                        percentage={salary.components.standardAllowance.percentage}
+                                        description={salary.components.standardAllowance.description}
+                                    />
+                                    
+                                    <SalaryComponent 
+                                        label="Performance Bonus"
+                                        amount={salary.components.performanceBonus.amount}
+                                        percentage={salary.components.performanceBonus.percentage}
+                                        description={salary.components.performanceBonus.description}
+                                    />
+                                    
+                                    <SalaryComponent 
+                                        label="Leave Travel Allowance (LTA)"
+                                        amount={salary.components.lta.amount}
+                                        percentage={salary.components.lta.percentage}
+                                        description={salary.components.lta.description}
+                                    />
+                                    
+                                    <SalaryComponent 
+                                        label="Fixed Allowance"
+                                        amount={salary.components.fixedAllowance.amount}
+                                        percentage={salary.components.fixedAllowance.percentage}
+                                        description={salary.components.fixedAllowance.description}
+                                    />
                                 </div>
 
-                                <div className="breakdown-card deductions-card">
-                                    <div className="breakdown-header">
-                                        <h4 className="breakdown-title deductions-title">Deductions</h4>
-                                    </div>
-                                    <div className="breakdown-content">
-                                        <BreakdownRow label="Provident Fund" value={`$${salary.deductions.pf.toLocaleString()}`} />
-                                        <BreakdownRow label="Professional Tax" value={`$${salary.deductions.tax.toLocaleString()}`} />
-                                        <div className="breakdown-divider"></div>
-                                        <BreakdownRow 
-                                            label="Total Deductions" 
-                                            value={`$${totalDeductions.toLocaleString()}`} 
-                                            isTotal={true}
-                                        />
-                                    </div>
+                                {/* Right Column - Contributions and Deductions */}
+                                <div className="salary-contributions-column">
+                                    <h3 className="salary-column-title">Provident Fund (PF) Contribution</h3>
+                                    
+                                    <SalaryComponent 
+                                        label="Employee"
+                                        amount={salary.pf.employee.amount}
+                                        percentage={salary.pf.employee.percentage}
+                                        description={salary.pf.employee.description}
+                                    />
+                                    
+                                    <SalaryComponent 
+                                        label="Employer"
+                                        amount={salary.pf.employer.amount}
+                                        percentage={salary.pf.employer.percentage}
+                                        description={salary.pf.employer.description}
+                                    />
+
+                                    <div className="salary-section-divider"></div>
+
+                                    <h3 className="salary-column-title">Tax Deductions</h3>
+                                    
+                                    <SalaryComponent 
+                                        label="Professional Tax"
+                                        amount={salary.tax.professionalTax.amount}
+                                        description={salary.tax.professionalTax.description}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -519,108 +592,115 @@ const Profile = () => {
                 .salary-section {
                     display: flex;
                     flex-direction: column;
-                    gap: 24px;
-                }
-                .salary-summary-card {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    border-radius: var(--radius-lg);
-                    padding: 32px;
-                    color: white;
-                    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-                }
-                .salary-summary-content {
-                    display: flex;
-                    justify-content: flex-start;
-                    align-items: flex-start;
-                }
-                .salary-summary-info {
-                    width: 100%;
-                }
-                .salary-label {
-                    font-size: 0.875rem;
-                    color: rgba(255, 255, 255, 0.85);
-                    margin: 0 0 8px 0;
-                    font-weight: 500;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-                .salary-amount {
-                    font-size: 2rem;
-                    font-weight: 700;
-                    margin: 0 0 6px 0;
-                    line-height: 1.2;
-                }
-                .salary-period {
-                    font-size: 0.8rem;
-                    color: rgba(255, 255, 255, 0.75);
-                    margin: 0;
-                    font-weight: 500;
+                    gap: 32px;
                 }
 
-                .salary-breakdown {
+                /* Wage Info Top Section */
+                .salary-wage-info {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                    grid-template-columns: repeat(4, 1fr);
                     gap: 24px;
-                }
-                .breakdown-card {
+                    padding: 24px;
                     background: var(--color-surface);
                     border: 1px solid var(--color-border);
                     border-radius: var(--radius-lg);
-                    padding: 32px;
                 }
-                .breakdown-header {
-                    margin-bottom: 24px;
-                    padding-bottom: 16px;
-                    border-bottom: 2px solid var(--color-border);
-                }
-                .breakdown-title {
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                    margin: 0;
-                }
-                .earnings-title {
-                    color: var(--color-status-green);
-                }
-                .deductions-title {
-                    color: var(--color-status-red);
-                }
-                .breakdown-content {
+                .wage-field {
                     display: flex;
                     flex-direction: column;
-                    gap: 16px;
+                    gap: 8px;
                 }
-                .breakdown-row {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 12px 0;
-                }
-                .breakdown-row.total {
-                    padding-top: 20px;
-                    margin-top: 8px;
-                    border-top: 2px solid var(--color-border);
-                }
-                .breakdown-label {
-                    font-size: 0.95rem;
-                    color: var(--color-text-secondary);
+                .wage-label {
+                    font-size: 0.875rem;
                     font-weight: 500;
+                    color: var(--color-text-secondary);
                 }
-                .breakdown-value {
-                    font-size: 1rem;
+                .wage-value {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 4px;
+                }
+                .wage-amount {
+                    font-size: 1.25rem;
                     font-weight: 600;
                     color: var(--color-text-main);
                 }
-                .breakdown-row.total .breakdown-label,
-                .breakdown-row.total .breakdown-value {
-                    font-size: 1.1rem;
-                    font-weight: 700;
+                .wage-unit {
+                    font-size: 0.875rem;
+                    color: var(--color-text-muted);
                 }
-                .breakdown-row.total .breakdown-value {
+
+                /* Salary Details Grid - Two Column Layout */
+                .salary-details-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 32px;
+                }
+                .salary-components-column,
+                .salary-contributions-column {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                }
+                .salary-column-title {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    color: var(--color-text-main);
+                    margin: 0;
+                    padding-bottom: 12px;
+                    border-bottom: 2px solid var(--color-border);
+                }
+
+                /* Salary Component Item */
+                .salary-component-item {
+                    padding: 20px;
+                    background: var(--color-surface);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-md);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+                .salary-component-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    padding-bottom: 12px;
+                    border-bottom: 1px solid var(--color-divider);
+                }
+                .salary-component-amount {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 6px;
+                }
+                .amount-value {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: var(--color-text-main);
+                }
+                .amount-unit {
+                    font-size: 0.85rem;
+                    color: var(--color-text-muted);
+                }
+                .salary-component-percentage {
+                    font-size: 0.9rem;
+                    font-weight: 500;
                     color: var(--color-primary);
                 }
-                .breakdown-divider {
-                    height: 1px;
-                    background: var(--color-divider);
+                .salary-component-label {
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    color: var(--color-text-main);
+                }
+                .salary-component-description {
+                    font-size: 0.85rem;
+                    line-height: 1.5;
+                    color: var(--color-text-secondary);
+                }
+
+                .salary-section-divider {
+                    height: 2px;
+                    background: var(--color-border);
                     margin: 8px 0;
                 }
 
@@ -696,11 +776,11 @@ const Profile = () => {
                     .profile-info-pills {
                         justify-content: center;
                     }
-                    .salary-breakdown {
+                    .salary-wage-info {
                         grid-template-columns: 1fr;
                     }
-                    .salary-amount {
-                        font-size: 1.75rem;
+                    .salary-details-grid {
+                        grid-template-columns: 1fr;
                     }
                     .header-tabs {
                         overflow-x: auto;
@@ -743,10 +823,21 @@ const InfoItem = ({ label, value, icon, fullWidth }) => (
     </div>
 );
 
-const BreakdownRow = ({ label, value, isTotal = false }) => (
-    <div className={`breakdown-row ${isTotal ? 'total' : ''}`}>
-        <span className="breakdown-label">{label}</span>
-        <span className="breakdown-value">{value}</span>
+const SalaryComponent = ({ label, amount, percentage, description }) => (
+    <div className="salary-component-item">
+        <div className="salary-component-header">
+            <div className="salary-component-amount">
+                <span className="amount-value">{amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <span className="amount-unit">₹ / month</span>
+            </div>
+            {percentage !== undefined && (
+                <div className="salary-component-percentage">
+                    {percentage.toFixed(2)} %
+                </div>
+            )}
+        </div>
+        <div className="salary-component-label">{label}:</div>
+        <div className="salary-component-description">{description}</div>
     </div>
 );
 
