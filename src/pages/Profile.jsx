@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User } from 'lucide-react';
+import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User, Edit2, Plus, X, Check } from 'lucide-react';
 
 const Profile = () => {
     const { id } = useParams();
@@ -10,6 +10,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+<<<<<<< HEAD
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -17,6 +18,43 @@ const Profile = () => {
                 // Determine endpoint: if id is 'me', use profile endpoint, else use admin ID endpoint
                 // Note: The App.jsx route is /profile/:id. 'me' is a valid :id here.
                 const endpoint = id === 'me' ? '/api/employees/profile' : `/api/employees/${id}`;
+=======
+    // Mock Employee Data
+    const [employee, setEmployee] = useState({
+        name: 'Alex Johnson',
+        role: 'Software Engineer',
+        dept: 'Engineering',
+        joinDate: 'Jan 15, 2022',
+        email: 'alex.j@company.com',
+        phone: '+1 (555) 123-4567',
+        reportsTo: 'Michael Chen',
+        skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'PostgreSQL'],
+        certifications: ['AWS Certified Solutions Architect', 'Meta Frontend Developer'],
+        about: 'Passionate developer with 5+ years of experience in building scalable web applications. Specialized in modern JavaScript frameworks and cloud infrastructure.',
+        jobLove: 'I love solving complex problems and building tools that make people\'s lives easier. The collaborative culture here is amazing.',
+        hobbies: 'Hiking, Photography, Open Source Contributing, Sci-Fi Novels',
+        address: '123 Tech Park, San Francisco, CA 94105',
+    });
+
+    // Handlers for updates
+    const handleUpdate = (field, value) => {
+        setEmployee(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleAddList = (field, item) => {
+        setEmployee(prev => ({
+            ...prev,
+            [field]: [...prev[field], item]
+        }));
+    };
+
+    const handleRemoveList = (field, itemToRemove) => {
+        setEmployee(prev => ({
+            ...prev,
+            [field]: prev[field].filter(i => i !== itemToRemove)
+        }));
+    };
+>>>>>>> ca22ff043b55d328b31d3abd835992c29846a542
 
                 const response = await fetch(endpoint, {
                     headers: {
@@ -80,6 +118,7 @@ const Profile = () => {
                 return (
                     <div className="tab-content">
                         <div className="resume-section">
+<<<<<<< HEAD
                             <div className="section-card">
                                 <h3 className="section-title">About</h3>
                                 <p className="section-description">
@@ -96,23 +135,69 @@ const Profile = () => {
                                     ))}
                                 </div>
                             </div>
+=======
+                            <EditableSection
+                                title="About"
+                                content={employee.about}
+                                onSave={(val) => handleUpdate('about', val)}
+                            />
+
+                            <EditableSection
+                                title="What I love about my job"
+                                content={employee.jobLove}
+                                onSave={(val) => handleUpdate('jobLove', val)}
+                            />
+
+                            <EditableSection
+                                title="My interests and hobbies"
+                                content={employee.hobbies}
+                                onSave={(val) => handleUpdate('hobbies', val)}
+                            />
+
+                            <ListSection
+                                title="Skills"
+                                items={employee.skills}
+                                onAdd={(item) => handleAddList('skills', item)}
+                                onRemove={(item) => handleRemoveList('skills', item)}
+                            />
+
+                            <ListSection
+                                title="Certifications"
+                                items={employee.certifications}
+                                onAdd={(item) => handleAddList('certifications', item)}
+                                onRemove={(item) => handleRemoveList('certifications', item)}
+                            />
+>>>>>>> ca22ff043b55d328b31d3abd835992c29846a542
 
                             <div className="section-card">
                                 <h3 className="section-title">Professional Information</h3>
                                 <div className="info-grid">
                                     <InfoItem
                                         label="Department"
+<<<<<<< HEAD
                                         value={employee.department}
                                         icon={<Briefcase size={18} />}
                                     />
                                     <InfoItem
                                         label="Designation"
                                         value={employee.designation}
+=======
+                                        value={employee.dept}
+                                        icon={<Briefcase size={18} />}
+                                    />
+                                    <InfoItem
+                                        label="Manager"
+                                        value={employee.reportsTo}
+>>>>>>> ca22ff043b55d328b31d3abd835992c29846a542
                                         icon={<User size={18} />}
                                     />
                                     <InfoItem
                                         label="Joined Date"
+<<<<<<< HEAD
                                         value={new Date(employee.dateOfJoining).toLocaleDateString()}
+=======
+                                        value={employee.joinDate}
+>>>>>>> ca22ff043b55d328b31d3abd835992c29846a542
                                         icon={<Calendar size={18} />}
                                     />
                                 </div>
@@ -543,32 +628,166 @@ const Profile = () => {
                     margin: 0 0 24px 0;
                 }
 
-                /* Resume Section */
+
+
+                /* Editable Section */
+                .section-header-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 24px;
+                }
+                .section-header-row .section-title {
+                    margin-bottom: 0;
+                }
+                .section-title {
+                    font-size: 1.35rem;
+                    font-weight: 600;
+                    color: var(--color-text-main);
+                    margin: 0 0 24px 0;
+                }
+                .edit-btn {
+                    padding: 8px;
+                    border-radius: 50%;
+                    color: var(--color-text-muted);
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    background: transparent;
+                    border: none;
+                }
+                .edit-btn:hover {
+                    background-color: var(--color-background);
+                    color: var(--color-primary);
+                }
+                .edit-textarea {
+                    width: 100%;
+                    min-height: 120px;
+                    padding: 12px;
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-md);
+                    font-family: inherit;
+                    font-size: 0.95rem;
+                    resize: vertical;
+                    margin-bottom: 16px;
+                }
+                .edit-textarea:focus {
+                    outline: none;
+                    border-color: var(--color-primary);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }
+                .edit-actions {
+                    display: flex;
+                    gap: 12px;
+                    justify-content: flex-end;
+                }
+                .btn-save, .btn-cancel {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 8px 16px;
+                    border-radius: var(--radius-md);
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                }
+                .btn-save {
+                    background: var(--color-primary);
+                    color: white;
+                    border: none;
+                }
+                .btn-cancel {
+                    background: white;
+                    border: 1px solid var(--color-border);
+                    color: var(--color-text-secondary);
+                }
+
+                /* List Section */
+                .remove-skill-btn {
+                    margin-left: 8px;
+                    color: var(--color-text-muted);
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    border: none;
+                    background: none;
+                    padding: 2px;
+                    border-radius: 50%;
+                }
+                .remove-skill-btn:hover {
+                    background: rgba(0,0,0,0.05);
+                    color: #ef4444;
+                }
+                .add-trigger-btn {
+                    margin-top: 16px;
+                    background: none;
+                    border: none;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    color: var(--color-primary);
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                    padding: 8px 0;
+                }
+                .add-trigger-btn:hover {
+                    text-decoration: underline;
+                }
+                .add-item-form {
+                    margin-top: 16px;
+                    display: flex;
+                    gap: 8px;
+                }
+                .add-input {
+                    flex: 1;
+                    padding: 8px 12px;
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-md);
+                    font-size: 0.9rem;
+                }
+                .add-input:focus {
+                    outline: none;
+                    border-color: var(--color-primary);
+                }
+                .add-btn-submit {
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--color-primary);
+                    color: white;
+                    border: none;
+                    border-radius: var(--radius-md);
+                    cursor: pointer;
+                }
+
+                /* Resume Section (Legacy support if needed, but overridden) */
                 .resume-section {
                     display: flex;
                     flex-direction: column;
-                    gap: 5px;
+                    gap: 24px;
                 }
 
-                /* Skills */
-                .skills-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 12px;
-                }
+                /* Skills Tag Update */
                 .skill-tag {
-                    padding: 10px 18px;
+                    padding: 8px 14px;
                     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
                     border: 1px solid #bfdbfe;
-                    border-radius: 24px;
+                    border-radius: 20px;
                     font-size: 0.9rem;
                     font-weight: 500;
                     color: var(--color-primary);
                     transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
                 }
-                .skill-tag:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+
+                /* Responsive */
+                @media (max-width: 900px) {
+                    .resume-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
 
                 /* Info Grid */
@@ -739,6 +958,18 @@ const Profile = () => {
                 }
 
                 /* Private Section */
+                .resume-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                }
+
+                /* Skills */
+                .skills-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                }
                 .private-section {
                     display: flex;
                     flex-direction: column;
@@ -874,5 +1105,106 @@ const SalaryComponent = ({ label, amount, percentage, description }) => (
         <div className="salary-component-description">{description}</div>
     </div>
 );
+
+// Helper Components
+const EditableSection = ({ title, content, onSave }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempContent, setTempContent] = useState(content);
+
+    const handleSave = () => {
+        onSave(tempContent);
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setTempContent(content);
+        setIsEditing(false);
+    };
+
+    return (
+        <div className="section-card">
+            <div className="section-header-row">
+                <h3 className="section-title">{title}</h3>
+                {!isEditing && (
+                    <button className="edit-btn" onClick={() => setIsEditing(true)}>
+                        <Edit2 size={16} />
+                    </button>
+                )}
+            </div>
+
+            {isEditing ? (
+                <div className="edit-form">
+                    <textarea
+                        className="edit-textarea"
+                        value={tempContent}
+                        onChange={(e) => setTempContent(e.target.value)}
+                    />
+                    <div className="edit-actions">
+                        <button className="btn-cancel" onClick={handleCancel}>
+                            <X size={16} /> Cancel
+                        </button>
+                        <button className="btn-save" onClick={handleSave}>
+                            <Check size={16} /> Save
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <p className="section-description">{content}</p>
+            )}
+        </div>
+    );
+};
+
+const ListSection = ({ title, items, onAdd, onRemove }) => {
+    const [isAdding, setIsAdding] = useState(false);
+    const [newItem, setNewItem] = useState('');
+
+    const handleAdd = () => {
+        if (newItem.trim()) {
+            onAdd(newItem.trim());
+            setNewItem('');
+            setIsAdding(false);
+        }
+    };
+
+    return (
+        <div className="section-card">
+            <h3 className="section-title">{title}</h3>
+            <div className="skills-container">
+                {items.map(item => (
+                    <span key={item} className="skill-tag">
+                        {item}
+                        <button className="remove-skill-btn" onClick={() => onRemove(item)}>
+                            <X size={12} />
+                        </button>
+                    </span>
+                ))}
+            </div>
+
+            {isAdding ? (
+                <div className="add-item-form">
+                    <input
+                        className="add-input"
+                        value={newItem}
+                        onChange={(e) => setNewItem(e.target.value)}
+                        placeholder={`Add ${title}...`}
+                        autoFocus
+                        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                    />
+                    <button className="add-btn-submit" onClick={handleAdd}>
+                        <Check size={16} />
+                    </button>
+                    <button className="add-btn-submit" style={{ backgroundColor: '#ef4444', marginLeft: '4px' }} onClick={() => setIsAdding(false)}>
+                        <X size={16} />
+                    </button>
+                </div>
+            ) : (
+                <button className="add-trigger-btn" onClick={() => setIsAdding(true)}>
+                    <Plus size={16} /> Add {title}
+                </button>
+            )}
+        </div>
+    );
+};
 
 export default Profile;
