@@ -265,151 +265,182 @@ const Employees = () => {
             )}
 
             <style>{`
-        .page-container { width: 100%; }
+        /* --- Ultra-Premium Card Styles --- */
+        .page-container { 
+            width: 100%; max-width: 1600px; margin: 0 auto; 
+            padding: 0 8px;
+        }
         
         /* Toolbar */
         .toolbar-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 24px;
+            padding: 12px 0; margin-bottom: 40px;
         }
         .btn-new {
-            display: flex; align-items: center; gap: 8px;
-            background-color: var(--color-primary); /* Use primary blue instead of purple */
-            color: white; border: none; padding: 10px 20px; font-weight: 600;
-            border-radius: 8px; cursor: pointer; font-size: 0.95rem;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-            transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 10px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #1d4ed8 100%);
+            color: white; border: none; padding: 14px 28px; font-weight: 600;
+            border-radius: 16px; cursor: pointer; font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3), 0 1px 2px rgba(255,255,255,0.2) inset;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.01em;
         }
         .btn-new:hover { 
-            background-color: #1d4ed8; /* Slightly darker blue */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4), 0 1px 2px rgba(255,255,255,0.3) inset;
         }
-        .btn-new:active { transform: translateY(1px); }
+        .btn-new:active { transform: translateY(0); }
 
-        .search-wrapper { position: relative; width: 320px; }
+        .search-wrapper { position: relative; width: 360px; }
         .search-input {
-            width: 100%; padding: 10px 16px; padding-right: 40px;
-            border: 2px solid #e2e8f0; border-radius: 100px;
-            outline: none; background: white; font-size: 0.9rem;
-            transition: border-color 0.2s;
+            width: 100%; padding: 14px 20px; padding-right: 48px;
+            background: #ffffff; border: 1px solid #e2e8f0;
+            border-radius: 16px; outline: none; font-size: 0.95rem; color: #0f172a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+            transition: all 0.2s ease;
         }
-        .search-input:focus { border-color: #a855f7; }
+        .search-input:focus { 
+            border-color: var(--color-primary); 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
         .search-icon {
-            position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted);
+            position: absolute; right: 18px; top: 50%; transform: translateY(-50%); 
+            color: #94a3b8; transition: color 0.2s;
         }
+        .search-input:focus + .search-icon { color: var(--color-primary); }
 
-        /* Grid - Compacter cards to fit more in row and minimize gaps */
+        /* Grid - Generous Spacing */
         .employee-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 32px;
         }
         
-        /* Card Styles - Premium Visual Elevation */
+        /* Card - "Designer Level" Appearance */
         .employee-card {
             position: relative; 
-            background: linear-gradient(145deg, #ffffff 0%, #fcfcfc 100%); /* Subtle gradient/texture */
-            border: 1px solid rgba(226, 232, 240, 0.8); /* Low contrast border */
-            border-radius: 20px; /* Increased radius */
-            padding: 32px;
-            display: flex; align-items: center; gap: 32px;
-            /* Layered shadows for depth */
+            background: #ffffff;
+            border-radius: 32px; /* Smooth large radius */
+            padding: 28px 32px; /* Generous padding */
+            display: flex; align-items: center; gap: 24px;
+            
+            /* Clean border - barely visible to define edges */
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            
+            /* Sophisticated Shadow */
             box-shadow: 
-                0 4px 6px -1px rgba(0, 0, 0, 0.02), 
-                0 2px 4px -1px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); /* 200ms smooth transition */
-            text-decoration: none; color: inherit;
-            min-height: 140px;
+                0 1px 2px rgba(0,0,0,0.02), 
+                0 4px 16px rgba(0,0,0,0.02),
+                0 24px 40px -8px rgba(0,0,0,0.04);
+                
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            text-decoration: none;
+            overflow: hidden;
+            z-index: 1;
         }
         
+        /* Hover State - "Lift & Glow" */
         .employee-card:hover {
-            transform: translateY(-4px); /* Subtle lift */
-            /* Enhanced shadow on hover */
+            transform: translateY(-8px);
+            border-color: rgba(226, 232, 240, 0.8);
             box-shadow: 
-                0 20px 25px -5px rgba(0, 0, 0, 0.05), 
-                0 10px 10px -5px rgba(0, 0, 0, 0.01);
-            border-color: rgba(203, 213, 225, 0.8); /* Slightly clearer border on hover */
+                0 1px 2px rgba(0,0,0,0.02),
+                0 12px 24px -4px rgba(0,0,0,0.06),
+                0 40px 80px -12px rgba(0,0,0,0.08); /* Deep soft shadow */
+            z-index: 10;
         }
 
-        /* Avatar - Premium Treatment */
+        /* Avatar - Large & Impactful */
         .card-avatar {
-            width: 80px; height: 80px; flex-shrink: 0;
-            border-radius: 20px; /* Slight squiggle/rounded sq logic */
+            width: 96px; height: 96px; flex-shrink: 0;
+            border-radius: 28px; /* Matching card curvature ratio */
             overflow: hidden;
-            /* Premium 'Picture Frame' Style */
-            border: 2px solid #ffffff; /* Inner white border for clean separation */
-            display: block; /* Ensure block layout for shadow */
-            box-shadow: 0 0 0 1px #cbd5e1, 0 2px 4px rgba(0,0,0,0.05); /* Outer slate ring + depth shadow */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background: #f1f5f9;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); /* Inner definition */
+            position: relative;
         }
-        .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .card-avatar img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            transition: transform 0.5s ease;
+        }
+        .employee-card:hover .card-avatar img { transform: scale(1.08); }
 
-        /* Info - Typography Refinement */
+        /* Info - Hierarchical Typography */
         .card-info {
             display: flex; flex-direction: column; justify-content: center;
-            overflow: hidden;
-            flex: 1;
-            gap: 4px; /* Tighter gap */
+            flex: 1; min-width: 0; padding-right: 32px; /* Space for status */
         }
         .emp-name {
-            font-weight: 700; font-size: 1.25rem; color: #1e293b; /* Reduced from 1.4rem */
-            letter-spacing: -0.02em; line-height: 1.3;
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-weight: 700; font-size: 1.45rem; color: #0f172a;
+            letter-spacing: -0.025em; margin-bottom: 4px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .emp-role {
-            font-size: 0.95rem; color: #64748b; margin-top: 2px; /* Reduced margin */
-            font-weight: 500; letter-spacing: 0.01em;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: 0.95rem; color: #64748b; font-weight: 500;
+            letter-spacing: 0.01em;
+            display: flex; align-items: center; gap: 6px;
         }
-
-        /* Status Top Right */
+        
+        /* Status - Floating Pill/Dot */
         .card-status {
-            position: absolute; top: 20px; right: 20px;
+            position: absolute; top: 28px; right: 28px;
         }
-        
-        /* Status Dot Styles - Soft Glow */
+
+        /* Reference-style Halo Dot with Blink */
         .status-dot-container {
-            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px; 
             border-radius: 50%;
-            position: relative;
-            /* Base glow for all */
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.8);
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px); /* Glassy feel */
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
-        /* Blink/Pulse Animations */
-        @keyframes blink-green {
-            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); opacity: 1; }
-            50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); opacity: 0.8; }
-            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); opacity: 1; }
-        }
-        @keyframes blink-yellow {
-            0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); opacity: 1; }
-            50% { box-shadow: 0 0 0 6px rgba(234, 179, 8, 0); opacity: 0.8; }
-            100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); opacity: 1; }
-        }
-
-        @keyframes blink-blue {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); opacity: 1; }
-            50% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); opacity: 0.8; }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); opacity: 1; }
-        }
-
-        .status-dot-container.green { 
-            background-color: #dcfce7;
-            animation: blink-green 3s infinite;
-        }
-        .status-dot-container.yellow { 
-            background-color: #fef9c3;
-            animation: blink-yellow 3s infinite;
-        }
-        .status-dot-container.blue { 
-            background-color: #dbeafe; 
-            animation: blink-blue 3s infinite; /* Added blink animation */
-        }
-
         .status-dot { width: 10px; height: 10px; border-radius: 50%; }
-        .status-dot.green-fill { background-color: #22c55e; }
-        .status-dot.yellow-fill { background-color: #ca8a04; }
-        /* Tilted plane icon - Default is already tilted Top-Right */
-        .plane-icon { color: #2563eb; display:block; }
+
+        /* Animation Keyframes */
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        @keyframes pulse-yellow {
+            0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(234, 179, 8, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+
+        @keyframes pulse-blue {
+            0% { filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0.6)); transform: scale(1); opacity: 1; }
+            50% { filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.4)); transform: scale(0.9); opacity: 0.7; }
+            100% { filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0)); transform: scale(1); opacity: 1; }
+        }
+
+        /* Colors - Soft Pastels with Animations */
+        .status-dot-container.green { background: rgba(220, 252, 231, 0.8); }
+        .status-dot-container.green .status-dot { 
+            background: #16a34a; 
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+            animation: pulse-green 2s infinite;
+        }
+        
+        .status-dot-container.yellow { background: rgba(254, 252, 232, 0.8); }
+        .status-dot-container.yellow .status-dot { 
+            background: #ca8a04; 
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+            animation: pulse-yellow 2s infinite;
+        }
+
+        .status-dot-container.blue { background: rgba(239, 246, 255, 0.8); } 
+        /* Plane icon specialized styling with pulse */
+        .status-dot-container.blue .plane-icon { 
+            color: #3b82f6; width: 14px; height: 14px;
+            display: block; /* Force block to respect transform */
+            animation: pulse-blue 1.5s infinite ease-in-out; /* Faster animation */
+        }
+
+        /* Hover Bounce for Status */
+        .employee-card:hover .status-dot-container {
+            transform: scale(1.15) rotate(5deg);
+        }
 
         /* MODAL STYLES */
         .modal-overlay {
