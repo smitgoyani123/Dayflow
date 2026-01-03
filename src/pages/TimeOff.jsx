@@ -3,7 +3,7 @@ import { Plus, Check, X, FileText, Filter, Users, User } from 'lucide-react';
 import Modal from '../components/Modal';
 
 const TimeOff = () => {
-    // Temporary role state for demo - default to 'employee'
+    // Temporary role state for demo
     const [userRole, setUserRole] = useState('employee'); // 'admin' | 'employee'
 
     // Shared State
@@ -52,49 +52,45 @@ const TimeOff = () => {
 
     const handleRequestSubmit = (e) => {
         e.preventDefault();
-
         let days = isHalfDay ? 0.5 : calculateDays(formData.startDate, formData.endDate);
-
         const newRequest = {
-            id: Date.now(), // Unique ID
-            employeeName: 'Alex Johnson', // Current user
+            id: Date.now(),
+            employeeName: 'Alex Johnson',
             type: formData.type,
             start: formData.startDate,
             end: formData.endDate,
             days: days,
             status: 'Pending'
         };
-
-        setRequests([newRequest, ...requests]); // Add to top
+        setRequests([newRequest, ...requests]);
         setModalOpen(false);
-        // Reset form
         setFormData({ type: 'Paid Time Off (PTO)', startDate: '', endDate: '', reason: '', attachment: null });
         setIsHalfDay(false);
     };
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="timeoff-page">
 
-            {/* Header & Role Toggle */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-main">Time Off</h1>
-                    <p className="text-secondary text-sm mt-1">
+            {/* 1. Header Section */}
+            <div className="page-header-row">
+                <div className="header-text">
+                    <h1 className="page-title">Time Off</h1>
+                    <p className="page-subtitle">
                         {userRole === 'admin' ? 'Manage employee leave requests' : 'Manage your leaves and time off Requests'}
                     </p>
                 </div>
 
-                <div className="flex items-center gap-6">
-                    {/* Improved Role Switcher */}
-                    <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
+                <div className="header-actions">
+                    {/* Role Switcher */}
+                    <div className="role-segments">
                         <button
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${userRole === 'employee' ? 'bg-primary/10 text-primary' : 'text-secondary hover:bg-gray-50'}`}
+                            className={`segment-btn ${userRole === 'employee' ? 'active' : ''}`}
                             onClick={() => setUserRole('employee')}
                         >
                             <User size={16} /> Employee
                         </button>
                         <button
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${userRole === 'admin' ? 'bg-primary/10 text-primary' : 'text-secondary hover:bg-gray-50'}`}
+                            className={`segment-btn ${userRole === 'admin' ? 'active' : ''}`}
                             onClick={() => setUserRole('admin')}
                         >
                             <Users size={16} /> Admin
@@ -102,41 +98,38 @@ const TimeOff = () => {
                     </div>
 
                     {userRole === 'employee' && (
-                        <button className="btn btn-primary flex gap-2 shadow-lg hover:shadow-xl transition-all" onClick={() => setModalOpen(true)}>
+                        <button className="btn-primary" onClick={() => setModalOpen(true)}>
                             <Plus size={18} /> Request Time Off
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* CONTENT BASED ON ROLE */}
-            {userRole === 'employee' ? (
-                <EmployeeView
-                    requests={requests.filter(r => r.employeeName === 'Alex Johnson')} // Show only own requests
-                    filter={filter}
-                    setFilter={setFilter}
-                />
-            ) : (
-                <AdminView
-                    requests={requests}
-                    handleStatusUpdate={handleStatusUpdate}
-                    filter={filter}
-                    setFilter={setFilter}
-                />
-            )}
+            {/* 2. Main Content Area */}
+            <div className="page-content">
+                {userRole === 'employee' ? (
+                    <EmployeeView
+                        requests={requests.filter(r => r.employeeName === 'Alex Johnson')}
+                        filter={filter}
+                        setFilter={setFilter}
+                    />
+                ) : (
+                    <AdminView
+                        requests={requests}
+                        handleStatusUpdate={handleStatusUpdate}
+                        filter={filter}
+                        setFilter={setFilter}
+                    />
+                )}
+            </div>
 
-            {/* Request Modal (Reverted to original design + Attachment) */}
+            {/* Request Modal */}
             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title="Request Time Off">
-                <form className="flex flex-col gap-5" onSubmit={handleRequestSubmit}>
+                <form className="modal-form" onSubmit={handleRequestSubmit}>
 
                     <div className="form-group">
-                        <label className="text-sm font-medium text-secondary mb-1 block">Leave Type</label>
-                        <select
-                            name="type"
-                            className="input-field"
-                            value={formData.type}
-                            onChange={handleInputChange}
-                        >
+                        <label>Leave Type</label>
+                        <select name="type" value={formData.type} onChange={handleInputChange}>
                             <option>Paid Time Off (PTO)</option>
                             <option>Sick Leave</option>
                             <option>Casual Leave</option>
@@ -144,268 +137,281 @@ const TimeOff = () => {
                         </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="form-row-2">
                         <div className="form-group">
-                            <label className="text-sm font-medium text-secondary mb-1 block">Start Date</label>
-                            <input
-                                type="date"
-                                name="startDate"
-                                className="input-field"
-                                value={formData.startDate}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <label>Start Date</label>
+                            <input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} required />
                         </div>
                         <div className="form-group">
-                            <label className="text-sm font-medium text-secondary mb-1 block">End Date</label>
-                            <input
-                                type="date"
-                                name="endDate"
-                                className="input-field"
-                                value={formData.endDate}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <label>End Date</label>
+                            <input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} required />
                         </div>
                     </div>
 
-                    <label className="flex items-center gap-2 cursor-pointer p-1">
-                        <input type="checkbox" className="w-4 h-4 text-primary rounded" checked={isHalfDay} onChange={e => setIsHalfDay(e.target.checked)} />
-                        <span className="text-sm text-main font-medium">Requesting Half Day</span>
+                    <label className="checkbox-row">
+                        <input type="checkbox" checked={isHalfDay} onChange={e => setIsHalfDay(e.target.checked)} />
+                        <span>Requesting Half Day</span>
                     </label>
 
-                    <div className="bg-muted p-4 rounded-lg text-sm text-secondary flex justify-between items-center">
+                    <div className="summary-box">
                         <span>Total Days:</span>
-                        <strong className="text-main text-lg">
-                            {isHalfDay ? '0.5' : calculateDays(formData.startDate, formData.endDate) || 0}
-                        </strong>
-                    </div>
-
-                    {/* Optional Attachment */}
-                    <div className="form-group">
-                        <label className="text-sm font-medium text-secondary mb-1 block">Attachment <span className="text-muted text-xs font-normal">(Optional)</span></label>
-                        <input type="file" className="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+                        <strong>{isHalfDay ? '0.5' : calculateDays(formData.startDate, formData.endDate) || 0}</strong>
                     </div>
 
                     <div className="form-group">
-                        <label className="text-sm font-medium text-secondary mb-1 block">Reason</label>
+                        <label>Reason</label>
                         <textarea
-                            name="reason"
-                            rows="3"
-                            placeholder="Why do you need time off?"
-                            className="input-field resize-none"
-                            value={formData.reason}
-                            onChange={handleInputChange}
-                            required
+                            name="reason" rows="3" placeholder="Why do you need time off?"
+                            value={formData.reason} onChange={handleInputChange} required
                         ></textarea>
                     </div>
 
-                    <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100">
-                        <button type="button" className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
-                        <button type="submit" className="btn btn-primary px-6">Submit Request</button>
+                    <div className="modal-actions">
+                        <button type="button" className="btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
+                        <button type="submit" className="btn-primary">Submit Request</button>
                     </div>
                 </form>
             </Modal>
 
             <style>{`
-          .grid-balance {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;
-          }
-          
-          /* Filters */
-          .filter-tabs { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 8px; }
-          .filter-tab {
-            padding: 6px 16px; font-size: 0.85rem; color: var(--color-text-secondary); border-radius: 6px; font-weight: 500; transition: all 0.2s;
-          }
-          .filter-tab:hover { background: rgba(0,0,0,0.05); color: var(--color-text-main); }
-          .filter-tab.active { background: white; color: var(--color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+                /* --- Layout Structure --- */
+                .timeoff-page {
+                    width: 100%;
+                    display: flex; flex-direction: column; gap: 32px;
+                    padding-bottom: 40px;
+                }
+                
+                /* Header */
+                .page-header-row {
+                    display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;
+                }
+                .page-title { font-size: 1.75rem; font-weight: 700; color: #0f172a; margin: 0; line-height: 1.2; }
+                .page-subtitle { color: #64748b; font-size: 0.95rem; margin-top: 4px; }
 
-          .input-field {
-             width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.95rem;
-             transition: border-color 0.2s, box-shadow 0.2s;
-          }
-          .input-field:focus {
-             border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none;
-          }
+                .header-actions { display: flex; align-items: center; gap: 16px; }
 
-          /* Table Styles */
-          table { border-collapse: separate; border-spacing: 0; width: 100%; }
-          
-          th {
-            background-color: #f8fafc;
-            padding: 16px 24px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--color-text-secondary);
-            border-bottom: 2px solid var(--color-border);
-            text-align: left;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-          }
-          
-          td {
-            padding: 20px 24px;
-            font-size: 0.95rem;
-            border-bottom: 1px solid var(--color-border);
-            vertical-align: middle;
-            color: var(--color-text-main);
-          }
-          
-          .hover-row:hover td { background-color: #f8fafc; cursor: default; }
-          .hover-row:last-child td { border-bottom: none; }
-          
-          .text-center { text-align: center; }
-          .p-8 { padding: 32px; }
-          
-          /* Action Buttons */
-          .action-btn {
-            width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
-            border-radius: 8px; cursor: pointer; transition: all 0.2s;
-          }
-          .action-btn.approve { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
-          .action-btn.approve:hover { background: #bbf7d0; transform: translateY(-1px); }
-          
-          .action-btn.reject { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-          .action-btn.reject:hover { background: #fecaca; transform: translateY(-1px); }
+                /* Role Switcher */
+                .role-segments {
+                    display: flex; background: white; padding: 4px; border-radius: 8px;
+                    border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+                }
+                .segment-btn {
+                    display: flex; align-items: center; gap: 8px;
+                    padding: 8px 16px; font-size: 0.9rem; font-weight: 500;
+                    border-radius: 6px; border: none; background: transparent;
+                    color: #64748b; cursor: pointer; transition: all 0.2s;
+                }
+                .segment-btn:hover { color: #0f172a; }
+                .segment-btn.active {
+                    background: #eff6ff; color: var(--color-primary); font-weight: 600;
+                }
 
-          .bg-primary\\/10 { background-color: rgba(59, 130, 246, 0.1); }
-          .text-primary { color: var(--color-primary); }
-        `}</style>
+                /* Primary Button */
+                .btn-primary {
+                    display: flex; align-items: center; gap: 8px;
+                    background: var(--color-primary); color: white;
+                    padding: 10px 20px; border-radius: 8px; border: none;
+                    font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+                    transition: transform 0.1s;
+                }
+                .btn-primary:active { transform: translateY(1px); }
+
+                /* --- Content Sections --- */
+                .page-content { display: flex; flex-direction: column; gap: 24px; }
+
+                /* Grid for Balance Cards */
+                .balance-grid {
+                    display: grid; 
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+                    gap: 24px;
+                }
+
+                /* Table Card Container */
+                .table-card {
+                    background: white; border: 1px solid #e2e8f0;
+                    border-radius: 12px; overflow: hidden;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                    display: flex; flex-direction: column;
+                }
+                .table-header-row {
+                    padding: 24px; border-bottom: 1px solid #e2e8f0;
+                    display: flex; justify-content: space-between; align-items: center;
+                }
+                .table-title { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+
+                /* Filter Tabs */
+                .filter-group { display: flex; gap: 4px; background: #f8fafc; padding: 4px; border-radius: 8px; border: 1px solid #e2e8f0; }
+                .filter-chip {
+                    padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; border: none;
+                    background: transparent; color: #64748b; font-weight: 500; cursor: pointer;
+                }
+                .filter-chip:hover { color: #0f172a; }
+                .filter-chip.active { background: white; color: var(--color-primary); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+                /* Table Styles */
+                .table-wrapper { width: 100%; overflow-x: auto; }
+                table { width: 100%; border-collapse: collapse; min-width: 600px; }
+                th {
+                    text-align: left; padding: 16px 24px; background: #f8fafc;
+                    font-size: 0.8rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                td {
+                    padding: 20px 24px; border-bottom: 1px solid #f1f5f9;
+                    font-size: 0.95rem; color: #334155; vertical-align: middle;
+                }
+                tr:last-child td { border-bottom: none; }
+                tr:hover td { background: #fcfcfc; }
+
+                .emp-name { font-weight: 600; color: #0f172a; }
+                .date-text { color: #64748b; font-feature-settings: "tnum"; }
+                
+                /* Pills & Badges */
+                .type-pill {
+                    display: inline-block; padding: 4px 10px; border-radius: 100px;
+                    font-size: 0.8rem; font-weight: 500; background: #f1f5f9; color: #475569;
+                }
+                .status-badge {
+                    display: inline-flex; align-items: center; gap: 6px;
+                    padding: 4px 10px; border-radius: 100px; font-size: 0.8rem; font-weight: 600;
+                }
+                .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+                
+                .status-Approved { background: #dcfce7; color: #15803d; } .status-Approved::before { background: #15803d; }
+                .status-Pending { background: #fef9c3; color: #a16207; } .status-Pending::before { background: #a16207; }
+                .status-Rejected { background: #fee2e2; color: #b91c1c; } .status-Rejected::before { background: #b91c1c; }
+
+                /* Modal Form */
+                .modal-form { display: flex; flex-direction: column; gap: 20px; }
+                .form-group { display: flex; flex-direction: column; gap: 6px; }
+                .form-group label { font-size: 0.9rem; font-weight: 500; color: #475569; }
+                .form-group select, .form-group input, .form-group textarea {
+                    padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px;
+                    font-size: 0.95rem; outline: none; transition: border 0.2s;
+                }
+                .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--color-primary); }
+                
+                .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                
+                .checkbox-row { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: #0f172a; }
+                .checkbox-row input { width: 16px; height: 16px; accent-color: var(--color-primary); }
+
+                .summary-box {
+                    background: #f8fafc; padding: 12px 16px; border-radius: 8px;
+                    display: flex; justify-content: space-between; align-items: center;
+                    font-size: 0.9rem; color: #64748b;
+                }
+                .summary-box strong { color: #0f172a; font-size: 1.1rem; }
+
+                .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
+                .btn-outline {
+                    padding: 10px 20px; background: white; border: 1px solid #cbd5e1;
+                    border-radius: 8px; font-weight: 600; color: #475569; cursor: pointer;
+                }
+                .btn-outline:hover { background: #f8fafc; color: #0f172a; }
+
+            `}</style>
         </div>
     );
 };
 
-// --- SUB-COMPONENTS ---
+// --- Sub-Components ---
 
 const EmployeeView = ({ requests, filter, setFilter }) => {
-    const filteredRequests = filter === 'All'
-        ? requests
-        : requests.filter(r => r.status === filter);
-
+    const filtered = filter === 'All' ? requests : requests.filter(r => r.status === filter);
     return (
-        <div className="flex flex-col gap-8 fade-in">
-            {/* Balance Cards */}
-            <div className="grid-balance">
-                <BalanceCard label="Paid Time Off" used={12} total={20} color="var(--color-primary)" />
+        <>
+            <div className="balance-grid">
+                <BalanceCard label="Paid Time Off (PTO)" used={12} total={20} color="var(--color-primary)" />
                 <BalanceCard label="Sick Leave" used={5} total={7} color="#f97316" />
                 <BalanceCard label="Casual Leave" used={2} total={5} color="#10b981" />
             </div>
 
-            {/* History Table */}
-            <div className="card p-0 overflow-hidden shadow-sm border border-gray-100">
-                <div className="table-header flex justify-between items-center p-6 border-b bg-white">
-                    <h3 className="text-lg font-semibold text-main">Request History</h3>
-                    <FilterTabs filter={filter} setFilter={setFilter} />
+            <div className="table-card">
+                <div className="table-header-row">
+                    <h3 className="table-title">Request History</h3>
+                    <FilterGroup filter={filter} setFilter={setFilter} />
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full">
+                <div className="table-wrapper">
+                    <table>
                         <thead>
                             <tr>
-                                <th style={{ width: '25%' }}>Name</th>
-                                <th style={{ width: '20%' }}>Start Date</th>
-                                <th style={{ width: '20%' }}>End Date</th>
-                                <th style={{ width: '20%' }}>Type</th>
-                                <th style={{ width: '15%' }}>Status</th>
+                                <th style={{ width: '30%' }}>Type</th>
+                                <th style={{ width: '25%' }}>Duration</th>
+                                <th style={{ width: '25%' }}>Dates</th>
+                                <th style={{ width: '20%' }}>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredRequests.length > 0 ? (
-                                filteredRequests.map(req => (
-                                    <tr key={req.id} className="hover-row">
-                                        <td>
-                                            <div className="font-medium text-main">{req.employeeName}</div>
-                                        </td>
-                                        <td className="text-secondary">{req.start}</td>
-                                        <td className="text-secondary">{req.end}</td>
-                                        <td>
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                                                {req.type}
-                                            </span>
-                                        </td>
-                                        <td><StatusBadge status={req.status} /></td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="5" className="text-center text-muted p-12">No records found</td>
+                            {filtered.length > 0 ? filtered.map(req => (
+                                <tr key={req.id}>
+                                    <td><span className="type-pill">{req.type}</span></td>
+                                    <td><span className="font-medium">{req.days} Days</span></td>
+                                    <td><div className="date-text">{req.start} → {req.end}</div></td>
+                                    <td><span className={`status-badge status-${req.status}`}>{req.status}</span></td>
                                 </tr>
+                            )) : (
+                                <tr><td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>No requests found.</td></tr>
                             )}
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
 const AdminView = ({ requests, handleStatusUpdate, filter, setFilter }) => {
-    const filteredRequests = filter === 'All'
-        ? requests
-        : requests.filter(r => r.status === filter);
-
+    const filtered = filter === 'All' ? requests : requests.filter(r => r.status === filter);
     return (
-        <div className="card p-0 overflow-hidden shadow-sm border border-gray-100 fade-in">
-            <div className="table-header flex justify-between items-center p-6 border-b bg-white">
-                <h3 className="text-lg font-semibold text-main">All Leave Requests</h3>
-                <FilterTabs filter={filter} setFilter={setFilter} />
+        <div className="table-card">
+            <div className="table-header-row">
+                <h3 className="table-title">All Leave Requests</h3>
+                <FilterGroup filter={filter} setFilter={setFilter} />
             </div>
-            <div className="overflow-x-auto">
-                <table className="w-full">
+            <div className="table-wrapper">
+                <table>
                     <thead>
                         <tr>
-                            <th style={{ width: '20%' }}>Employee</th>
-                            <th style={{ width: '15%' }}>From</th>
-                            <th style={{ width: '15%' }}>To</th>
+                            <th style={{ width: '25%' }}>Employee</th>
                             <th style={{ width: '20%' }}>Type</th>
+                            <th style={{ width: '25%' }}>Dates</th>
                             <th style={{ width: '10%' }}>Days</th>
                             <th style={{ width: '10%' }}>Status</th>
                             <th style={{ width: '10%' }}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredRequests.length > 0 ? (
-                            filteredRequests.map(req => (
-                                <tr key={req.id} className="hover-row">
-                                    <td>
-                                        <div className="font-medium text-main">{req.employeeName}</div>
-                                    </td>
-                                    <td className="text-secondary">{req.start}</td>
-                                    <td className="text-secondary">{req.end}</td>
-                                    <td>
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            {req.type}
-                                        </span>
-                                    </td>
-                                    <td>{req.days}</td>
-                                    <td><StatusBadge status={req.status} /></td>
-                                    <td>
-                                        {req.status === 'Pending' ? (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    className="action-btn approve"
-                                                    title="Approve"
-                                                    onClick={() => handleStatusUpdate(req.id, 'Approved')}
-                                                >
-                                                    <Check size={18} />
-                                                </button>
-                                                <button
-                                                    className="action-btn reject"
-                                                    title="Reject"
-                                                    onClick={() => handleStatusUpdate(req.id, 'Rejected')}
-                                                >
-                                                    <X size={18} />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <span className="text-muted text-sm italic">--</span>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="7" className="text-center text-muted p-12">No leave requests found</td>
+                        {filtered.length > 0 ? filtered.map(req => (
+                            <tr key={req.id}>
+                                <td><div className="emp-name">{req.employeeName}</div></td>
+                                <td><span className="type-pill">{req.type}</span></td>
+                                <td><div className="date-text">{req.start} <br /><span style={{ fontSize: '0.85em' }}>to {req.end}</span></div></td>
+                                <td><span className="font-medium">{req.days}</span></td>
+                                <td><span className={`status-badge status-${req.status}`}>{req.status}</span></td>
+                                <td>
+                                    {req.status === 'Pending' && (
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button
+                                                onClick={() => handleStatusUpdate(req.id, 'Approved')}
+                                                style={{ padding: '6px', background: '#dcfce7', border: 'none', borderRadius: '6px', color: '#15803d', cursor: 'pointer' }}
+                                                title="Approve"
+                                            >
+                                                <Check size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleStatusUpdate(req.id, 'Rejected')}
+                                                style={{ padding: '6px', background: '#fee2e2', border: 'none', borderRadius: '6px', color: '#b91c1c', cursor: 'pointer' }}
+                                                title="Reject"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    )}
+                                </td>
                             </tr>
+                        )) : (
+                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>No pending requests.</td></tr>
                         )}
                     </tbody>
                 </table>
@@ -414,14 +420,41 @@ const AdminView = ({ requests, handleStatusUpdate, filter, setFilter }) => {
     );
 };
 
-// --- HELPERS ---
+const BalanceCard = ({ label, used, total, color }) => {
+    const percentage = Math.round((used / total) * 100);
+    return (
+        <div style={{
+            background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+        }}>
+            <div>
+                <h4 style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '8px' }}>{label}</h4>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: '700', color: '#0f172a', lineHeight: 1 }}>{total - used}</span>
+                    <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>left</span>
+                </div>
+                <div style={{ marginTop: '8px', fontSize: '0.8rem', color: '#64748b', background: '#f8fafc', padding: '2px 8px', borderRadius: '4px', display: 'inline-block' }}>
+                    Used: <strong>{used}</strong>/{total}
+                </div>
+            </div>
+            <div style={{
+                width: '64px', height: '64px', borderRadius: '50%', background: `conic-gradient(${color} ${percentage}%, #f1f5f9 0)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+                <div style={{ width: '52px', height: '52px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '700', color: '#334155' }}>
+                    {percentage}%
+                </div>
+            </div>
+        </div>
+    );
+};
 
-const FilterTabs = ({ filter, setFilter }) => (
-    <div className="filter-tabs">
+const FilterGroup = ({ filter, setFilter }) => (
+    <div className="filter-group">
         {['All', 'Approved', 'Pending', 'Rejected'].map(f => (
             <button
                 key={f}
-                className={`filter-tab ${filter === f ? 'active' : ''}`}
+                className={`filter-chip ${filter === f ? 'active' : ''}`}
                 onClick={() => setFilter(f)}
             >
                 {f}
@@ -429,57 +462,5 @@ const FilterTabs = ({ filter, setFilter }) => (
         ))}
     </div>
 );
-
-const BalanceCard = ({ label, used, total, color }) => {
-    const percentage = Math.round((used / total) * 100);
-
-    return (
-        <div className="card balance-card flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div>
-                <span className="balance-label block mb-2 font-medium">{label}</span>
-                <div className="balance-value flex items-baseline gap-1">
-                    <span className="big">{total - used}</span>
-                    <span className="total">Days Left</span>
-                </div>
-                <div className="text-xs text-secondary mt-2 bg-gray-50 px-2 py-1 rounded inline-block">
-                    Used: <strong>{used}</strong> / {total}
-                </div>
-            </div>
-
-            {/* Percentage Circle */}
-            <div className="progress-circle" style={{
-                background: `conic-gradient(${color} ${percentage}%, #f1f5f9 0)`
-            }}>
-                <div className="inner-circle shadow-inner">{percentage}%</div>
-            </div>
-
-            <style>{`
-         .balance-card { padding: 24px; }
-         .balance-label { font-size: 0.95rem; color: var(--color-text-secondary); }
-         .balance-value .big { font-size: 2.2rem; font-weight: 700; color: var(--color-text-main); line-height: 1; }
-         .balance-value .total { font-size: 0.85rem; color: var(--color-text-muted); }
-         
-         .progress-circle {
-           width: 72px; height: 72px; border-radius: 50%;
-           display: flex; align-items: center; justify-content: center;
-         }
-         .inner-circle {
-           width: 58px; height: 58px; background: white; border-radius: 50%;
-           display: flex; align-items: center; justify-content: center;
-           font-size: 0.9rem; font-weight: 600; color: var(--color-text-main);
-         }
-      `}</style>
-        </div>
-    );
-};
-
-const StatusBadge = ({ status }) => {
-    let className = 'status-pill ';
-    if (status === 'Approved') className += 'present';
-    else if (status === 'Rejected') className += 'absent';
-    else className += 'late';
-
-    return <span className={className}>{status}</span>;
-}
 
 export default TimeOff;
