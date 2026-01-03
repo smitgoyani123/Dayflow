@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import TopNav from '../components/TopNav';
-import CheckInWidget from '../components/CheckInWidget';
+
 
 const MainLayout = () => {
-    const [status, setStatus] = useState('offline'); // 'online' | 'offline'
+  const [status, setStatus] = useState('offline'); // 'online' | 'offline'
 
-    const handleToggleCheckIn = () => {
-        setStatus(prev => prev === 'online' ? 'offline' : 'online');
-    };
+  const handleToggleCheckIn = () => {
+    setStatus(prev => prev === 'online' ? 'offline' : 'online');
+  };
 
-    return (
-        <div className="app-layout">
-            {/* Pass status to TopNav to update the dot */}
-            <TopNav status={status} />
+  return (
+    <div className="app-layout">
+      {/* Pass status and toggle handler to TopNav */}
+      <TopNav status={status} onToggleCheckIn={handleToggleCheckIn} />
 
-            <main className="main-content container">
-                <Outlet />
-            </main>
+      <main className="main-content container">
+        <Outlet />
+      </main>
 
-            <CheckInWidget status={status} onToggle={handleToggleCheckIn} />
-
-            <style>{`
+      <style>{`
         .app-layout {
           min-height: 100vh;
           background-color: var(--color-bg);
@@ -32,8 +30,8 @@ const MainLayout = () => {
           padding-bottom: 80px; /* Space for widget on mobile if needed */
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 };
 
 export default MainLayout;
