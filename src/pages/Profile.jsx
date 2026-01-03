@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Mail, Phone, MapPin, Briefcase, Calendar, Shield, DollarSign, FileText, Lock, User, Edit2, Plus, X, Check } from 'lucide-react';
 
@@ -6,19 +7,7 @@ const Profile = () => {
     const { id } = useParams();
     const [activeTab, setActiveTab] = useState('resume');
     const [isAdmin, setIsAdmin] = useState(true); // Toggle for demo
-    const [employee, setEmployee] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-<<<<<<< HEAD
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                // Determine endpoint: if id is 'me', use profile endpoint, else use admin ID endpoint
-                // Note: The App.jsx route is /profile/:id. 'me' is a valid :id here.
-                const endpoint = id === 'me' ? '/api/employees/profile' : `/api/employees/${id}`;
-=======
     // Mock Employee Data
     const [employee, setEmployee] = useState({
         name: 'Alex Johnson',
@@ -54,63 +43,28 @@ const Profile = () => {
             [field]: prev[field].filter(i => i !== itemToRemove)
         }));
     };
->>>>>>> ca22ff043b55d328b31d3abd835992c29846a542
 
-                const response = await fetch(endpoint, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch profile');
-                }
-
-                const data = await response.json();
-                setEmployee(data);
-                setLoading(false);
-            } catch (err) {
-                console.error(err);
-                setError(err.message);
-                setLoading(false);
-            }
-        };
-
-        fetchProfile();
-    }, [id]);
-
-
-    // Mock Salary Data (Since backend Payroll model exists but might not be linked fully yet, 
-    // and storing complex structure in Employee model is different. 
-    // We can fetch payroll data separately if needed, but for now we keep mock salary 
-    // or map it if we added it to Employee model. 
-    // The previous schemas had a separate Payroll model.
-    // To limit scope creep, I will keep Salary hardcoded or default for now 
-    // unless I fetch from /api/payroll/employee/:id)
     const salary = {
-        monthlyWage: employee?.salary || 0,
-        yearlyWage: (employee?.salary || 0) * 12,
+        monthlyWage: 50000,
+        yearlyWage: 600000,
         workingDaysPerWeek: 5,
         breakTime: 1,
         components: {
-            basic: { amount: (employee?.salary || 0) * 0.5, percentage: 50.00, description: 'Basic salary component' },
-            hra: { amount: (employee?.salary || 0) * 0.25, percentage: 25.00, description: 'House Rent Allowance' },
-            standardAllowance: { amount: (employee?.salary || 0) * 0.1, percentage: 10.00, description: 'Standard Allowance' },
-            performanceBonus: { amount: (employee?.salary || 0) * 0.05, percentage: 5.00, description: 'Performance Bonus' },
-            lta: { amount: (employee?.salary || 0) * 0.05, percentage: 5.00, description: 'LTA' },
-            fixedAllowance: { amount: (employee?.salary || 0) * 0.05, percentage: 5.00, description: 'Fixed Allowance' }
+            basic: { amount: 25000, percentage: 50.00, description: 'Define Basic salary from company cost compute it based on monthly Wages' },
+            hra: { amount: 12500, percentage: 50.00, description: 'HRA provided to employees 50% of the basic salary' },
+            standardAllowance: { amount: 4167, percentage: 16.67, description: 'A standard allowance is a predetermined, fixed amount provided to employee as part of their salary' },
+            performanceBonus: { amount: 2082.50, percentage: 8.33, description: 'Variable amount paid during payroll. The value defined by the company and calculated as a % of the basic salary' },
+            lta: { amount: 2082.50, percentage: 8.33, description: 'LTA is paid by the company to employees to cover their travel expenses. and calculated as a % of the basic salary' },
+            fixedAllowance: { amount: 2918, percentage: 11.67, description: 'fixed allowance portion of wages is determined after calculating all salary components' }
         },
         pf: {
-            employee: { amount: (employee?.salary || 0) * 0.12, percentage: 12.00, description: 'PF Employee Share' },
-            employer: { amount: (employee?.salary || 0) * 0.12, percentage: 12.00, description: 'PF Employer Share' }
+            employee: { amount: 3000, percentage: 12.00, description: 'PF is calculated based on the basic salary' },
+            employer: { amount: 3000, percentage: 12.00, description: 'PF is calculated based on the basic salary' }
         },
         tax: {
-            professionalTax: { amount: 200, description: 'Professional Tax' }
+            professionalTax: { amount: 200, description: 'Professional Tax deducted from the Gross salary' }
         }
     };
-
-    if (loading) return <div className="p-8 text-center text-muted">Loading profile...</div>;
-    if (error || !employee) return <div className="p-8 text-center text-red-500">Error loading profile: {error}</div>;
 
     const renderTabContent = () => {
         switch (activeTab) {
@@ -118,24 +72,6 @@ const Profile = () => {
                 return (
                     <div className="tab-content">
                         <div className="resume-section">
-<<<<<<< HEAD
-                            <div className="section-card">
-                                <h3 className="section-title">About</h3>
-                                <p className="section-description">
-                                    {employee.bio || `Professional ${employee.designation} in the ${employee.department} department.`}
-                                </p>
-                            </div>
-
-                            <div className="section-card">
-                                <h3 className="section-title">Skills</h3>
-                                <div className="skills-container">
-                                    {/* Mock skills if not in DB, assuming DB doesn't have skills array yet */}
-                                    {(employee.skills || ['Hard Worker', 'Team Player', 'Punctual']).map(skill => (
-                                        <span key={skill} className="skill-tag">{skill}</span>
-                                    ))}
-                                </div>
-                            </div>
-=======
                             <EditableSection
                                 title="About"
                                 content={employee.about}
@@ -167,37 +103,23 @@ const Profile = () => {
                                 onAdd={(item) => handleAddList('certifications', item)}
                                 onRemove={(item) => handleRemoveList('certifications', item)}
                             />
->>>>>>> ca22ff043b55d328b31d3abd835992c29846a542
 
                             <div className="section-card">
                                 <h3 className="section-title">Professional Information</h3>
                                 <div className="info-grid">
                                     <InfoItem
                                         label="Department"
-<<<<<<< HEAD
-                                        value={employee.department}
-                                        icon={<Briefcase size={18} />}
-                                    />
-                                    <InfoItem
-                                        label="Designation"
-                                        value={employee.designation}
-=======
                                         value={employee.dept}
                                         icon={<Briefcase size={18} />}
                                     />
                                     <InfoItem
                                         label="Manager"
                                         value={employee.reportsTo}
->>>>>>> ca22ff043b55d328b31d3abd835992c29846a542
                                         icon={<User size={18} />}
                                     />
                                     <InfoItem
                                         label="Joined Date"
-<<<<<<< HEAD
-                                        value={new Date(employee.dateOfJoining).toLocaleDateString()}
-=======
                                         value={employee.joinDate}
->>>>>>> ca22ff043b55d328b31d3abd835992c29846a542
                                         icon={<Calendar size={18} />}
                                     />
                                 </div>
@@ -216,8 +138,6 @@ const Profile = () => {
                         </div>
                     );
                 }
-
-                const totalComponents = Object.values(salary.components).reduce((sum, comp) => sum + comp.amount, 0);
 
                 return (
                     <div className="tab-content">
@@ -415,11 +335,11 @@ const Profile = () => {
                         <div className="profile-info-pills">
                             <span className="info-pill">
                                 <Mail size={14} />
-                                <span>{employee.email}</span>
+                                <span className="text-sm">{employee.email}</span>
                             </span>
                             <span className="info-pill">
                                 <MapPin size={14} />
-                                <span>San Francisco</span>
+                                <span className="text-sm">San Francisco</span>
                             </span>
                         </div>
                     </div>
@@ -628,8 +548,6 @@ const Profile = () => {
                     margin: 0 0 24px 0;
                 }
 
-
-
                 /* Editable Section */
                 .section-header-row {
                     display: flex;
@@ -804,40 +722,47 @@ const Profile = () => {
                 .info-item {
                     display: flex;
                     gap: 16px;
-                    align-items: flex-start;
+                    background: var(--color-background);
+                    padding: 16px;
+                    border-radius: var(--radius-md);
+                    border: 1px solid transparent;
+                    transition: all 0.2s;
+                }
+                .info-item:hover {
+                    border-color: var(--color-border);
+                    background: #fdfdfd;
                 }
                 .info-item.full-width {
                     grid-column: 1 / -1;
                 }
                 .info-icon {
-                    width: 44px;
-                    height: 44px;
-                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-                    border: 1px solid var(--color-border);
-                    border-radius: 12px;
+                    width: 40px;
+                    height: 40px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    background: rgba(37, 99, 235, 0.1);
                     color: var(--color-primary);
+                    border-radius: 50%;
                     flex-shrink: 0;
                 }
                 .info-content {
                     flex: 1;
                     min-width: 0;
                 }
-                .info-label { 
-                    font-size: 0.8rem;
-                    font-weight: 500;
+                .info-label {
+                    display: block;
+                    font-size: 0.85rem;
                     color: var(--color-text-muted);
+                    margin-bottom: 4px;
+                    font-weight: 500;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
-                    margin-bottom: 6px;
-                    display: block;
                 }
-                .info-value { 
+                .info-value {
                     font-size: 1rem;
-                    font-weight: 500;
                     color: var(--color-text-main);
+                    font-weight: 500;
                     word-break: break-word;
                 }
 
@@ -847,16 +772,14 @@ const Profile = () => {
                     flex-direction: column;
                     gap: 32px;
                 }
-
-                /* Wage Info Top Section */
                 .salary-wage-info {
                     display: grid;
-                    grid-template-columns: repeat(4, 1fr);
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                     gap: 24px;
                     padding: 24px;
-                    background: var(--color-surface);
-                    border: 1px solid var(--color-border);
+                    background: linear-gradient(135deg, var(--color-primary) 0%, #1e40af 100%);
                     border-radius: var(--radius-lg);
+                    color: white;
                 }
                 .wage-field {
                     display: flex;
@@ -864,23 +787,24 @@ const Profile = () => {
                     gap: 8px;
                 }
                 .wage-label {
-                    font-size: 0.875rem;
+                    font-size: 0.85rem;
+                    opacity: 0.8;
                     font-weight: 500;
-                    color: var(--color-text-secondary);
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
                 }
                 .wage-value {
                     display: flex;
                     align-items: baseline;
-                    gap: 4px;
+                    gap: 6px;
                 }
                 .wage-amount {
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                    color: var(--color-text-main);
+                    font-size: 1.5rem;
+                    font-weight: 700;
                 }
                 .wage-unit {
                     font-size: 0.875rem;
-                    color: var(--color-text-muted);
+                    color: rgba(255, 255, 255, 0.8);
                 }
 
                 /* Salary Details Grid - Two Column Layout */
