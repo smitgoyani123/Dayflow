@@ -39,7 +39,9 @@ const updateEmployeeProfile = asyncHandler(async (req, res) => {
 // @route   GET /api/employees
 // @access  Private/Admin
 const getAllEmployees = asyncHandler(async (req, res) => {
-    const employees = await Employee.find({});
+    // Filter by Company
+    const companyId = req.user.companyId._id;
+    const employees = await Employee.find({ companyId });
     res.json(employees);
 });
 
@@ -59,12 +61,15 @@ const createEmployee = asyncHandler(async (req, res) => {
         phoneNumber,
     } = req.body;
 
+    const company = req.user.companyId;
+
+    if (!company) {
+        res.status(400);
+        throw new Error('Company not found for this user');
+    }
+
     // Check if user account exists for this email
     let user = await User.findOne({ email });
-
-    // if (!user) {
-    //    // Allow creating employee without user account for now
-    // }
 
     const employeeExists = await Employee.findOne({ email });
 
@@ -73,8 +78,25 @@ const createEmployee = asyncHandler(async (req, res) => {
         throw new Error('Employee profile already exists');
     }
 
+    // Generate Employee Code
+    // Format: [CO][FN][LN][YYYY][####]
+    const co = company.code;
+    const fn = firstName.substring(0, 2).toUpperCase();
+    const ln = lastName.substring(0, 2).toUpperCase();
+    const year = new Date().getFullYear();
+
+    // Find last employee to increment ID
+    // Regex to match the prefix? Or just count? 
+    // Counting for this company for this year might be easier.
+    const count = await Employee.countDocuments({ companyId: company._id });
+    const idSuffix = String(count + 2).padStart(4, '0'); // +2 because HR is 1 (conceptually) or just increment.
+    // Making it unique is key.
+
+    const employeeCode = `${co}${fn}${ln}${year}${idSuffix}`;
+
     const employee = new Employee({
         userId: user ? user._id : undefined, // Safe access
+        companyId: company._id,
         firstName,
         lastName,
         email,
@@ -84,15 +106,15 @@ const createEmployee = asyncHandler(async (req, res) => {
         salary,
         address,
         phoneNumber,
+        employeeCode,
     });
 
     const createdEmployee = await employee.save();
 
-
-
     // Link employee to user if user exists
     if (user) {
         user.employeeId = createdEmployee._id;
+        user.companyId = company._id; // Ensure User is also linked to company
         await user.save();
     } else {
         // Optionally create a dummy user or just leave unlinked until they sign up

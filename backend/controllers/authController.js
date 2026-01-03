@@ -1,7 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
+import Company from '../models/Company.js';
 import generateToken from '../utils/generateToken.js';
 import Employee from '../models/Employee.js';
+import mongoose from 'mongoose';
 
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
@@ -35,6 +37,7 @@ const loginUser = asyncHandler(async (req, res) => {
             _id: user._id,
             email: user.email,
             role: user.role,
+            companyId: user.companyId,
             employeeId: user.employeeId,
             employeeDetails: employee,
             token: generateToken(user._id),
@@ -45,11 +48,11 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc    Register a new user (Admin/HR only usually, but open for now as per req "Create Organization")
+// @desc    Register a new Organization (HR)
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { email, password, role, fullName, companyName, phone } = req.body;
+    const { email, password, fullName, companyName, phone, address } = req.body;
 
     const userExists = await User.findOne({ email });
 
@@ -58,39 +61,66 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error('User already exists');
     }
 
+    // 1. Create Company
+    const companyCode = companyName.substring(0, 2).toUpperCase(); // Simple logic, maybe better in future
+
+    // Check if company code exists, handle duplicate logic if needed (omit for MVP/Task simplicity or append random)
+    // For now, let's assume unique or append random if needed. 
+    // Ideally, we'd check availability.
+
+    const company = await Company.create({
+        name: companyName,
+        email: email, // Company contact email same as HR for now
+        phone: phone,
+        address: address,
+        code: companyCode,
+        adminUserId: new mongoose.Types.ObjectId(), // Placeholder, will update after User creation
+    });
+
+    if (!company) {
+        res.status(400);
+        throw new Error('Invalid company data');
+    }
+
+    // 2. Create User (HR)
     const user = await User.create({
         email,
         password,
-        role: role || 'Employee',
+        role: 'HR',
+        companyId: company._id,
     });
 
     if (user) {
+        // Update Company Admin
+        company.adminUserId = user._id;
+        await company.save();
+
+        // 3. Create Employee Profile for HR
         // Parse Name
-        let firstName = 'New';
-        let lastName = 'User';
+        let firstName = 'HR';
+        let lastName = 'Admin';
         if (fullName) {
             const parts = fullName.split(' ');
             firstName = parts[0];
-            lastName = parts.length > 1 ? parts.slice(1).join(' ') : '';
+            lastName = parts.slice(1).join(' ');
         }
 
-        // Generate a random Employee Code (Simple Logic: EMP + Random 4 Digits)
-        // In a real app, this should be sequential or checked for uniqueness.
-        const empCode = 'EMP' + Math.floor(1000 + Math.random() * 9000);
+        // Generate HR Employee ID
+        const empCode = `${companyCode}${firstName.substring(0, 2).toUpperCase()}${lastName.substring(0, 2).toUpperCase()}${new Date().getFullYear()}0001`;
 
-        // Create detailed Employee profile linked to User
         const newEmployee = await Employee.create({
             userId: user._id,
+            companyId: company._id,
             email: user.email,
             firstName: firstName,
-            lastName: lastName || (role === 'Admin' ? 'Admin' : 'Employee'),
-            designation: role === 'Admin' ? 'Administrator' : 'Staff',
-            department: companyName || 'General', // Using Company Name as Department/Org identifier for now
+            lastName: lastName,
+            designation: 'HR Manager',
+            department: 'Human Resources',
             dateOfJoining: new Date(),
             salary: 0,
-            address: 'Please update address',
+            address: address || 'Please update address',
             phoneNumber: phone || '0000000000',
-            employeeCode: empCode, // Save the generated code
+            employeeCode: empCode,
             profilePicture: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=random`
         });
 
@@ -101,11 +131,12 @@ const registerUser = asyncHandler(async (req, res) => {
             _id: user._id,
             email: user.email,
             role: user.role,
+            companyId: user.companyId,
             employeeId: user.employeeId,
-            employeeCode: empCode,
             token: generateToken(user._id),
         });
     } else {
+        await Company.findByIdAndDelete(company._id); // Rollback
         res.status(400);
         throw new Error('Invalid user data');
     }

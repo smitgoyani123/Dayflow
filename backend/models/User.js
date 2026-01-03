@@ -17,6 +17,10 @@ const userSchema = mongoose.Schema({
         default: 'Employee',
         required: true,
     },
+    companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
+    },
     employeeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Employee',

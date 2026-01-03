@@ -6,6 +6,11 @@ const employeeSchema = mongoose.Schema({
         ref: 'User',
         required: false,
     },
+    companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
+        required: true,
+    },
     firstName: {
         type: String,
         required: true,

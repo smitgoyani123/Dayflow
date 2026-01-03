@@ -25,6 +25,12 @@ const companySchema = mongoose.Schema({
         type: String, // URL or base64
         default: '',
     },
+    code: {
+        type: String,
+        unique: true,
+        uppercase: true,
+        trim: true,
+    },
     adminUserId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
