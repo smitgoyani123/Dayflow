@@ -215,7 +215,7 @@ const Signup = () => {
 
       <style>{`
         .auth-container {
-          min-height: 100vh;
+          height: 100vh;
           width: 100%;
           display: flex;
           align-items: center;
@@ -223,11 +223,14 @@ const Signup = () => {
           background: url('/auth-bg.jpg') no-repeat center center fixed;
           background-size: cover;
           padding: 20px;
+          overflow: hidden;
         }
 
         .auth-card {
           width: 100%;
           max-width: 580px; /* Wider for 2-column layout */
+          max-height: 90vh;
+          overflow-y: auto;
           background: white;
           border-radius: 24px;
           padding: 32px 40px; /* Slightly less vertical padding to fit viewport */
